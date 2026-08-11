@@ -36,6 +36,7 @@ allprojects {
     }
 }
 
+fun Project.cloudstream(configuration: CloudstreamExtension.() -> Unit) = extensions.getByName<CloudstreamExtension>("cloudstream").configuration()
 
 fun Project.android(configuration: LibraryExtension.() -> Unit) {
     extensions.getByName<LibraryExtension>("android").apply {
@@ -54,7 +55,7 @@ subprojects {
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     cloudstream {
-        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/cosmix-extensions/Not-For-All")
+        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/cosmix-extensions/test222")
     }
 
     android {
@@ -88,8 +89,8 @@ subprojects {
     }
 
     dependencies {
-        val implementation by configurations
-        val cloudstream by configurations
+        val implementation = configurations.getByName("implementation")
+        val cloudstream = configurations.getByName("cloudstream")
         cloudstream("com.github.recloudstream:cloudstream:master-SNAPSHOT")
 
         implementation(kotlin("stdlib"))
