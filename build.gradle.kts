@@ -14,9 +14,9 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:9.2.1")
+        classpath("com.android.tools.build:gradle:9.1.1")
         classpath("com.github.recloudstream.gradle:gradle:81b1d424d")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.0")
     }
 }
 
@@ -111,3 +111,5 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+
