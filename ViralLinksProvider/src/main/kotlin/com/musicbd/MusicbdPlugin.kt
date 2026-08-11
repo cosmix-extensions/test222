@@ -1,11 +1,15 @@
 package com.musicbd
+import com.lagradost.cloudstream3.plugins.BasePlugin
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
-import com.lagradost.cloudstream3.plugins.CloudstreamPluginAnnotation
 
 
-@CloudstreamPluginAnnotation
-class MusicbdPlugin : CloudstreamPlugin() {
+@CloudstreamPlugin
+class MusicbdPlugin: BasePlugin() {
     override fun load() {
-        registerCsxApi(MusicbdProvider())
+        registerMainAPI(MusicbdProvider())
     }
 }
+
+
+
+

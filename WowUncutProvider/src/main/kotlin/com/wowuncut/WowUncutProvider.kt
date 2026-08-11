@@ -3,7 +3,7 @@ package com.wowuncut
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 
-class WowUncutProvider : CsxApi() {
+class WowUncutProvider : MainAPI() {
     override var mainUrl = "https://wowuncut.com"
     override var name = "WowUncut"
     override var lang = "hi"
@@ -81,3 +81,4 @@ class WowUncutProvider : CsxApi() {
         return true
     }
 }
+

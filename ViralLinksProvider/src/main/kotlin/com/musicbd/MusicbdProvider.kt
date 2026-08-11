@@ -6,7 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-class MusicbdProvider : CsxApi() {
+class MusicbdProvider : MainAPI() {
     override var mainUrl = "https://musicbd25.site"
     override var name = "Musicbd25"
     override var lang = "en"
@@ -203,3 +203,4 @@ class MusicbdProvider : CsxApi() {
         return false
     }
 }
+

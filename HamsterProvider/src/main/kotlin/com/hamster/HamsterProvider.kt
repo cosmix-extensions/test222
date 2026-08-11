@@ -5,7 +5,7 @@ import com.lagradost.cloudstream3.utils.*
 import org.jsoup.Jsoup
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
-class HamsterProvider : CsxApi() {
+class HamsterProvider : MainAPI() {
     override var mainUrl = "https://xhamster.com"
     override var name = "Hamster"
     override var lang = "en"
@@ -203,3 +203,4 @@ class HamsterProvider : CsxApi() {
         return false
     }
 }
+

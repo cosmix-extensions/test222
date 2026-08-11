@@ -4,7 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 
-class WowProvider : CsxApi() {
+class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wow.xxx"
     override var name = "Wow"
     override var lang = "en"
