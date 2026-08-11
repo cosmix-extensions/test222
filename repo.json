@@ -1,0 +1,8 @@
+{
+  "name": "NSFW Providers",
+  "description": "NSFW Extensions for CloudStream",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/plugins.json"
+  ]
+}
