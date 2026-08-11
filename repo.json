@@ -1,0 +1,8 @@
+{
+  "name": "NSFW Providers",
+  "description": "NSFW Cosmix Extension Repository",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/cosmix-extensions/Not-For-All/builds/plugins.json"
+  ]
+}

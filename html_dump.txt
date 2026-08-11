@@ -1,0 +1,90 @@
+﻿<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="unsafe-url" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Just a moment...</title>
+  <style type="text/css">
+	html, body {width: 100%; height: 100%; margin: 0; padding: 0;}
+	body {background-color: #ffffff; font-family: Helvetica, Arial, sans-serif; font-size: 100%;}
+	h1 {font-size: 1.5em; color: #404040; text-align: center;}
+	p {font-size: 1em; color: #404040; text-align: center; margin: 10px 0 0 0;}
+	#spinner {margin: 0 auto 30px auto; display: block;}
+	.attribution {margin-top: 20px;}
+	@-webkit-keyframes bubbles { 33%: { -webkit-transform: translateY(10px); transform: translateY(10px); } 66% { -webkit-transform: translateY(-10px); transform: translateY(-10px); } 100% { -webkit-transform: translateY(0); transform: translateY(0); } }
+	@keyframes bubbles { 33%: { -webkit-transform: translateY(10px); transform: translateY(10px); } 66% { -webkit-transform: translateY(-10px); transform: translateY(-10px); } 100% { -webkit-transform: translateY(0); transform: translateY(0); } }
+	.bubbles { background-color: #404040; width:15px; height: 15px; margin:2px; border-radius:100%; -webkit-animation:bubbles 0.6s 0.07s infinite ease-in-out; animation:bubbles 0.6s 0.07s infinite ease-in-out; -webkit-animation-fill-mode:both; animation-fill-mode:both; display:inline-block; }
+    #logo{max-width:500px;margin-bottom:40px}
+  </style>
+  
+  
+  
+</head>
+<body>
+<script>
+if (window.location.hostname !== window.atob("eHh4ZnJlZS53YXRjaA==")) {
+window.location = window.atob("aHR0cDovL3h4eGZyZWUud2F0Y2gvP2ZpbHRlcj1sYXRlc3Q=");
+}
+
+function timer(){
+ var obj=document.getElementById('timer');
+ obj.innerHTML--;
+ if(obj.innerHTML==0){
+setTimeout(function(){},1000);
+document.getElementById("btn").innerHTML = window.atob('PGZvcm0gYWN0aW9uPSIiIG1ldGhvZD0icG9zdCI+PGlucHV0IG5hbWU9ImFudGlib3QiIHR5cGU9ImhpZGRlbiIgdmFsdWU9ImM4NjhhMzMzMzYzZTEyYTIwMGVjYWM4MTZkZTQyZTEyIj48aW5wdXQgdHlwZT0ic3VibWl0IiBuYW1lPSJzdWJtaXQiIHZhbHVlPSJDbGljayB0byBjb250aW51ZSI+PC9mb3JtPg==');
+}
+ else{setTimeout(timer,1000);}
+}
+setTimeout(timer,10000);
+</script>
+  <table width="100%" height="100%" cellpadding="20">
+	<tr>
+	  <td align="center" valign="middle">
+   
+		  <div class="cf-browser-verification cf-im-under-attack">
+  <noscript><h1 style="color:#bd2426;">Please turn JavaScript on and reload the page.</h1></noscript>
+  <div id="cf-content">
+	<div>
+	  <div class="bubbles"></div>
+	  <div class="bubbles"></div>
+	  <div class="bubbles"></div>
+	</div>
+	<h1>Checking your browser before accessing xxxfree.watch</h1>
+	<p>This process is automatic. Your browser will redirect to your requested content shortly.</p>
+	<p id="btn">Please allow up to <span id="timer">5</span> seconds&hellip;</p>
+  </div>
+</div>
+<div class="attribution">
+
+<p>Your IP: 118.179.49.60</p>
+		  </div>
+	  </td>
+	</tr>
+  </table>
+
+<script type="text/javascript" src="//xxxfree.watch/?antibot05CBBAA82E7F=1&id=2286521018&rand=1783508156"></script>
+<script>
+if (typeof SGAntiBot == "undefined"){
+var script = document.createElement('script');
+script.src = "//xxxfree.watch/?antibot05CBBAA82E7F=1&id=2286521018&rand=1783508156";
+document.getElementsByTagName('head')[0].appendChild(script);
+}
+if (typeof antibot != "undefined") {
+if (antibot == window.atob("Yzg2OGEzMzMzNjNlMTJhMjAwZWNhYzgxNmRlNDJlMTI=")) {
+var d = new Date();
+d.setTime(d.getTime() + (1*24*60*60*1000));
+var expires = "expires="+ d.toUTCString();
+document.cookie = "antibot=" + antibot + "; " + expires + "; path=/;";
+setTimeout(location.reload.bind(location), 0);
+}
+}
+</script>
+<center></center>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"e1c04540a967493897048ae99a0449e9","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+

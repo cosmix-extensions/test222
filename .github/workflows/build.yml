@@ -1,0 +1,49 @@
+name: Build & Deploy Cloudstream Extension
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Make executable
+        run: chmod +x ./gradlew
+
+      - name: Build Extensions
+        run: |
+          ./gradlew make
+          ./gradlew makePluginsJson
+
+          cp ViralLinksProvider/build/ViralLinksProvider.cs3 build/
+          cp WowProvider/build/WowProvider.cs3 build/
+          cp WowUncutProvider/build/WowUncutProvider.cs3 build/
+          cp HamsterProvider/build/HamsterProvider.cs3 build/
+
+          cp ViralLinksProvider/build/ViralLinksProvider.jar build/
+          cp WowProvider/build/WowProvider.jar build/
+          cp WowUncutProvider/build/WowUncutProvider.jar build/
+          cp HamsterProvider/build/HamsterProvider.jar build/
+          cp repo.json build/
+
+      - name: Deploy to builds branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: builds
+          folder: build
+          clean: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
