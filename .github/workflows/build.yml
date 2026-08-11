@@ -18,15 +18,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "17"
-          distribution: "temurin"
-
-      - name: Download Gradle Wrapper JAR
-        run: |
-          mkdir -p gradle/wrapper
-          curl -fsSL -o gradle/wrapper/gradle-wrapper.jar \
-            "https://github.com/gradle/gradle/raw/v8.11.1/gradle/wrapper/gradle-wrapper.jar"
-
-      - name: Make gradlew executable
+          distribution: "temurin"`n`n      - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Build and Generate
@@ -58,3 +50,5 @@ jobs:
           folder: build_output
           clean: false
           token: ${{ secrets.GITHUB_TOKEN }}
+
+
