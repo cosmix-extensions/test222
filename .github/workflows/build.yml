@@ -18,7 +18,9 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "17"
-          distribution: "temurin"`n`n      - name: Make gradlew executable
+          distribution: "temurin"
+
+      - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Build and Generate
@@ -50,5 +52,3 @@ jobs:
           folder: build_output
           clean: false
           token: ${{ secrets.GITHUB_TOKEN }}
-
-
