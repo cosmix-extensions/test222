@@ -174,33 +174,43 @@ class MusicbdProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         if (data.isBlank() || !data.contains("filedownload")) return false
-        
-        try {
-            val doc = app.get(data, headers = ua).document
-            val finalA = doc.selectFirst("a[href*=filedownload]")
-            if (finalA != null) {
-                var finalUrl = finalA.attr("href").trim()
-                if (finalUrl.startsWith("//")) {
-                    finalUrl = "https:$finalUrl"
-                }
-                
-                callback.invoke(
-                    newExtractorLink(
-                        this.name,
-                        "Direct Stream",
-                        finalUrl,
-                        ExtractorLinkType.VIDEO
-                    ) {
-                        quality = Qualities.Unknown.value
-                    }
-                )
-                return true
+
+        return try {
+            val doc = app.get(
+                data,
+                headers = ua + ("Referer" to "$mainUrl/")
+            ).document
+
+            // Find CDN direct MP4 link (dl*.com / .mp4 ending)
+            val finalUrl = (
+                doc.selectFirst("a[href$=.mp4]") ?:
+                doc.selectFirst("a[href*=.mp4]") ?:
+                doc.selectFirst("a:contains(Start Download)") ?:
+                doc.selectFirst("a:contains(Download Now)")
+            )?.attr("href")?.trim() ?: return false
+
+            // Prefix normalize
+            val normalized = when {
+                finalUrl.startsWith("//") -> "https:$finalUrl"
+                finalUrl.startsWith("/")  -> "$mainUrl$finalUrl"
+                else -> finalUrl
             }
+
+            callback.invoke(
+                newExtractorLink(
+                    this.name,
+                    "Direct Stream",
+                    normalized,
+                    ExtractorLinkType.VIDEO
+                ) {
+                    quality = Qualities.Unknown.value
+                    referer = "$mainUrl/"
+                }
+            )
+            true
         } catch (e: Exception) {
             e.printStackTrace()
+            false
         }
-        
-        return false
     }
 }
-
