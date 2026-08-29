@@ -89,11 +89,16 @@ class WowProvider : MainAPI() {
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
-
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-            newMovieSearchResponse(title, href, TvType.Movie) {
+            var preview = item.selectFirst("div.thumb__img")?.attr("data-preview")
+            if (preview?.startsWith("//") == true) preview = "https:$preview"
+            if (preview?.startsWith("/") == true) preview = "$mainUrl$preview"
+
+            val finalUrl = if (!preview.isNullOrBlank()) "$href|$preview" else href
+
+            newMovieSearchResponse(title, finalUrl, TvType.Movie) {
                 this.posterUrl = poster
             }
         }
@@ -116,11 +121,16 @@ class WowProvider : MainAPI() {
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
-
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-            newMovieSearchResponse(title, href, TvType.Movie) {
+            var preview = item.selectFirst("div.thumb__img")?.attr("data-preview")
+            if (preview?.startsWith("//") == true) preview = "https:$preview"
+            if (preview?.startsWith("/") == true) preview = "$mainUrl$preview"
+
+            val finalUrl = if (!preview.isNullOrBlank()) "$href|$preview" else href
+
+            newMovieSearchResponse(title, finalUrl, TvType.Movie) {
                 this.posterUrl = poster
             }
         }
@@ -134,17 +144,16 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val actualUrl = url.substringBefore("|")
+        val trailerUrl = if (url.contains("|")) url.substringAfter("|") else null
+
+        val doc = app.get(actualUrl, headers = ua, timeout = 60).document
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         if (poster == null) {
             poster = doc.selectFirst(".player-container img")?.attr("src")
         }
-        
-        var trailerUrl = doc.selectFirst("div.thumb__img")?.attr("data-preview")
-        if (trailerUrl?.startsWith("//") == true) trailerUrl = "https:$trailerUrl"
-        if (trailerUrl?.startsWith("/") == true) trailerUrl = "$mainUrl$trailerUrl"
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -156,18 +165,25 @@ class WowProvider : MainAPI() {
             val recTitle = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
+            
             var recPoster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
             if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
             if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
 
-            newMovieSearchResponse(recTitle, recHref, TvType.Movie) {
+            var recPreview = item.selectFirst("div.thumb__img")?.attr("data-preview")
+            if (recPreview?.startsWith("//") == true) recPreview = "https:$recPreview"
+            if (recPreview?.startsWith("/") == true) recPreview = "$mainUrl$recPreview"
+
+            val finalRecUrl = if (!recPreview.isNullOrBlank()) "$recHref|$recPreview" else recHref
+
+            newMovieSearchResponse(recTitle, finalRecUrl, TvType.Movie) {
                 this.posterUrl = recPoster
             }
         }
 
-        return newMovieLoadResponse(title, url, TvType.Movie, url) {
+        return newMovieLoadResponse(title, actualUrl, TvType.Movie, actualUrl) {
             this.posterUrl = poster
             this.plot = plotText
             this.tags = tags
