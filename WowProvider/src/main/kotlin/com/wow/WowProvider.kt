@@ -9,7 +9,7 @@ class WowProvider : MainAPI() {
     override var name = "Wow"
     override var lang = "en"
     override val hasMainPage = true
-    override val supportedTypes = setOf(TvType.Movie)
+    override val supportedTypes = setOf(TvType.Others)
 
     private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
@@ -92,7 +92,7 @@ class WowProvider : MainAPI() {
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-            newMovieSearchResponse(title, href, TvType.Movie) {
+            newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
         }
@@ -119,7 +119,7 @@ class WowProvider : MainAPI() {
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-            newMovieSearchResponse(title, href, TvType.Movie) {
+            newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
         }
@@ -157,12 +157,12 @@ class WowProvider : MainAPI() {
             if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
             if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
 
-            newMovieSearchResponse(recTitle, recHref, TvType.Movie) {
+            newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
             }
         }
 
-        return newMovieLoadResponse(title, url, TvType.Movie, url) {
+        return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
             this.plot = plotText
             this.tags = tags
