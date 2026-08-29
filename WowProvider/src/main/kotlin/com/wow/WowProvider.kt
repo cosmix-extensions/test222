@@ -174,7 +174,7 @@ class WowProvider : MainAPI() {
             this.recommendations = recommendations
             
             if (!trailerUrl.isNullOrBlank()) {
-                addTrailer(trailerUrl)
+                this.trailer = TrailerData(trailerUrl) // Changed from addTrailer to this.trailer = TrailerData(...)
             }
         }
     }
