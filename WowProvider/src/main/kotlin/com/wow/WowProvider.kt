@@ -5,7 +5,7 @@ import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 
 class WowProvider : MainAPI() {
-    override var mainUrl = "https://www.wow.xxx"
+    override var mainUrl = "https://www.wowxxx.to"
     override var name = "Wow"
     override var lang = "en"
     override val hasMainPage = true
@@ -17,24 +17,15 @@ class WowProvider : MainAPI() {
         "$mainUrl/latest-updates/" to "Latest Updates",
         "$mainUrl/top-rated/" to "Top Rated",
         "$mainUrl/most-popular/" to "Most Popular",
-        "$mainUrl/networks/brazzers-com/latest-updates/" to "Brazzers - Latest Updates",
-        "$mainUrl/networks/brazzers-com/" to "Brazzers",
-        "$mainUrl/networks/brazzers-com/top-rated/" to "Brazzers - Top Rated",
         "$mainUrl/networks/mylf-com/latest-updates/" to "Mylf - Latest Updates",
         "$mainUrl/networks/mylf-com/" to "Mylf",
         "$mainUrl/networks/mylf-com/top-rated/" to "Mylf - Top Rated",
         "$mainUrl/networks/teamskeet-com/latest-updates/" to "Teamskeet - Latest Updates",
         "$mainUrl/networks/teamskeet-com/" to "Teamskeet",
         "$mainUrl/networks/teamskeet-com/top-rated/" to "Teamskeet - Top Rated",
-        "$mainUrl/sites/my-dirty-maid/latest-updates/" to "My Dirty Maid - Latest Updates",
-        "$mainUrl/sites/my-dirty-maid/most-popular/" to "My Dirty Maid - Most Popular",
-        "$mainUrl/sites/my-dirty-maid/top-rated/" to "My Dirty Maid - Top Rated",
         "$mainUrl/networks/mom-lover/latest-updates/" to "Mom Lover - Latest Updates",
         "$mainUrl/networks/mom-lover/most-popular/" to "Mom Lover - Most Popular",
         "$mainUrl/networks/mom-lover/top-rated/" to "Mom Lover - Top Rated",
-        "$mainUrl/sites/rk-prime/latest-updates/" to "Rk Prime - Latest Updates",
-        "$mainUrl/sites/rk-prime/most-popular/" to "Rk Prime - Most Popular",
-        "$mainUrl/sites/rk-prime/top-rated/" to "Rk Prime - Top Rated",
         "$mainUrl/networks/nubiles-porn-com/latest-updates/" to "Nubiles Porn - Latest Updates",
         "$mainUrl/networks/nubiles-porn-com/" to "Nubiles Porn",
         "$mainUrl/networks/nubiles-porn-com/top-rated/" to "Nubiles Porn - Top Rated",
@@ -77,14 +68,6 @@ class WowProvider : MainAPI() {
         "$mainUrl/models/eliza-ibarra/" to "Eliza Ibarra",
         "$mainUrl/models/emily-willis/latest-updates/" to "Emily Willis - Latest Updates",
         "$mainUrl/models/emily-willis/" to "Emily Willis",
-        "$mainUrl/models/danny-d/latest-updates/" to "Danny D - Latest Updates",
-        "$mainUrl/models/danny-d/" to "Danny D",
-        "$mainUrl/models/xander-corvus/latest-updates/" to "Xander Corvus - Latest Updates",
-        "$mainUrl/models/xander-corvus/" to "Xander Corvus",
-        "$mainUrl/models/jordi-el-ni%C3%B1o-polla/latest-updates/" to "Jordi El Niño Polla - Latest Updates",
-        "$mainUrl/models/jordi-el-ni%C3%B1o-polla/" to "Jordi El Niño Polla",
-        "$mainUrl/models/keiran-lee/latest-updates/" to "Keiran Lee - Latest Updates",
-        "$mainUrl/models/keiran-lee/" to "Keiran Lee",
         "$mainUrl/models/valentina-nappi/latest-updates/" to "Valentina Nappi - Latest Updates",
         "$mainUrl/models/valentina-nappi/" to "Valentina Nappi",
         "$mainUrl/models/violet-myers/latest-updates/" to "Violet Myers - Latest Updates",
@@ -151,12 +134,16 @@ class WowProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url, headers = ua, timeout = 60).document
-        val title = doc.title().trim().replace(" - wow.xxx", "", true).trim()
+        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         if (poster == null) {
             poster = doc.selectFirst(".player-container img")?.attr("src")
         }
+        
+        var trailerUrl = doc.selectFirst("div.thumb__img")?.attr("data-preview")
+        if (trailerUrl?.startsWith("//") == true) trailerUrl = "https:$trailerUrl"
+        if (trailerUrl?.startsWith("/") == true) trailerUrl = "$mainUrl$trailerUrl"
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -185,6 +172,10 @@ class WowProvider : MainAPI() {
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
+            
+            if (!trailerUrl.isNullOrBlank()) {
+                addTrailer(trailerUrl)
+            }
         }
     }
 
