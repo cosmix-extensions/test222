@@ -1,6 +1,7 @@
 package com.wow
 
 import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 
@@ -174,7 +175,7 @@ class WowProvider : MainAPI() {
             this.recommendations = recommendations
             
             if (!trailerUrl.isNullOrBlank()) {
-                this.trailer = TrailerData(trailerUrl) // Changed from addTrailer to this.trailer = TrailerData(...)
+                addTrailer(trailerUrl)
             }
         }
     }
