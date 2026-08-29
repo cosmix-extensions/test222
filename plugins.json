@@ -32,7 +32,7 @@
             "Cloudstream Extension"
         ],
         "description": "ViralLinksProvider",
-        "fileSize": 15409,
+        "fileSize": 15371,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -41,10 +41,10 @@
         ],
         "iconUrl": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQvNXfZt7ctszD6Fy_FwU7NfcyxIEZ6uW6asTw_5cMPS38hkm65bQdzb2bCD-86XfOUVmp5xjOANaefT4ZdWSCf_picqYtsAN5McX_3gVEfdVa5EA4h9e2noiaNLwUhMK8VaGx1mQGI_7TCnpmEI3LxtgNPeVpKsojjSbqSZh50VbyrTiP7_2KOIusBBsC/s1024/1000073990.png",
         "apiVersion": 1,
-        "fileHash": "sha256-e743a9486175d3b076906d1fe22ea152376d11cf2b5ecad3ec4b1d380f4b0002",
-        "jarFileSize": 69672,
+        "fileHash": "sha256-6f3ac00da4608c37adab637f2baf2d1dc00fd028deceb5f2bfb25b9cc6da3219",
+        "jarFileSize": 69448,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.jar",
-        "jarHash": "sha256-72256401e5a152b25178623abe8f479afff5a8e5360ce801ddfbb50bbc1c688d"
+        "jarHash": "sha256-0f564478d8be72d8e204327191b62045478b124a368d136e9fc61de8d86b69f5"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.cs3",
