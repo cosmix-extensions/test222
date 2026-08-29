@@ -1,7 +1,6 @@
 package com.wow
 
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 
@@ -89,16 +88,11 @@ class WowProvider : MainAPI() {
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
+
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-            var preview = item.selectFirst("div.thumb__img")?.attr("data-preview")
-            if (preview?.startsWith("//") == true) preview = "https:$preview"
-            if (preview?.startsWith("/") == true) preview = "$mainUrl$preview"
-
-            val finalUrl = if (!preview.isNullOrBlank()) "$href|$preview" else href
-
-            newMovieSearchResponse(title, finalUrl, TvType.Movie) {
+            newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = poster
             }
         }
@@ -121,16 +115,11 @@ class WowProvider : MainAPI() {
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
+
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-            var preview = item.selectFirst("div.thumb__img")?.attr("data-preview")
-            if (preview?.startsWith("//") == true) preview = "https:$preview"
-            if (preview?.startsWith("/") == true) preview = "$mainUrl$preview"
-
-            val finalUrl = if (!preview.isNullOrBlank()) "$href|$preview" else href
-
-            newMovieSearchResponse(title, finalUrl, TvType.Movie) {
+            newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = poster
             }
         }
@@ -144,10 +133,7 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val actualUrl = url.substringBefore("|")
-        val trailerUrl = if (url.contains("|")) url.substringAfter("|") else null
-
-        val doc = app.get(actualUrl, headers = ua, timeout = 60).document
+        val doc = app.get(url, headers = ua, timeout = 60).document
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
@@ -165,34 +151,23 @@ class WowProvider : MainAPI() {
             val recTitle = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            
             var recPoster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
             if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
             if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
 
-            var recPreview = item.selectFirst("div.thumb__img")?.attr("data-preview")
-            if (recPreview?.startsWith("//") == true) recPreview = "https:$recPreview"
-            if (recPreview?.startsWith("/") == true) recPreview = "$mainUrl$recPreview"
-
-            val finalRecUrl = if (!recPreview.isNullOrBlank()) "$recHref|$recPreview" else recHref
-
-            newMovieSearchResponse(recTitle, finalRecUrl, TvType.Movie) {
+            newMovieSearchResponse(recTitle, recHref, TvType.Movie) {
                 this.posterUrl = recPoster
             }
         }
 
-        return newMovieLoadResponse(title, actualUrl, TvType.Movie, actualUrl) {
+        return newMovieLoadResponse(title, url, TvType.Movie, url) {
             this.posterUrl = poster
             this.plot = plotText
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-            
-            if (!trailerUrl.isNullOrBlank()) {
-                addTrailer(trailerUrl)
-            }
         }
     }
 
