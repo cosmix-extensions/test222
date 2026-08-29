@@ -2,7 +2,6 @@ package com.musicbd
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.network.WebViewResolver
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -14,8 +13,8 @@ class MusicbdProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Movie)
 
-    // Removed the custom PC User-Agent to avoid vDDoS user-agent mismatch with the Android WebView.
-    private val webViewResolver = WebViewResolver(Regex("""^https?://.*musicbd25\.site.*"""))
+    private val defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    private val ua = mapOf("User-Agent" to defaultUserAgent)
 
     private val excludedSrcs = listOf(
         "1000016877",
@@ -47,7 +46,7 @@ class MusicbdProvider : MainAPI() {
     private suspend fun fetchPoster(url: String): String {
         val defaultPoster = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQvNXfZt7ctszD6Fy_FwU7NfcyxIEZ6uW6asTw_5cMPS38hkm65bQdzb2bCD-86XfOUVmp5xjOANaefT4ZdWSCf_picqYtsAN5McX_3gVEfdVa5EA4h9e2noiaNLwUhMK8VaGx1mQGI_7TCnpmEI3LxtgNPeVpKsojjSbqSZh50VbyrTiP7_2KOIusBBsC/s1024/1000073990.png"
         try {
-            val doc = app.get(url, interceptor = webViewResolver).document
+            val doc = app.get(url, headers = ua).document
             
             val elements = ArrayList<org.jsoup.nodes.Element>()
             elements.addAll(doc.select("div.thumb img"))
@@ -77,8 +76,7 @@ class MusicbdProvider : MainAPI() {
             listUrl = "${request.data}?to-page=$page"
         }
         
-        val docResponse = app.get(listUrl, interceptor = webViewResolver)
-        val listDoc = docResponse.document
+        val listDoc = app.get(listUrl, headers = ua).document
 
         var linkElements = listDoc.select("div.catlistblock a[href*=/page-download/]")
         if (linkElements.isEmpty()) {
@@ -130,7 +128,7 @@ class MusicbdProvider : MainAPI() {
             url = "$mainUrl/site-1.html?to-search=$encoded&to-page=$page"
         }
         
-        val doc = app.get(url, interceptor = webViewResolver).document
+        val doc = app.get(url, headers = ua).document
 
         var linkElements = doc.select("div.catlistblock a[href*=/page-download/]")
         if (linkElements.isEmpty()) {
@@ -176,7 +174,7 @@ class MusicbdProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url, interceptor = webViewResolver).document
+        val doc = app.get(url, headers = ua).document
         doc.select("div.updates").remove()
 
         var title = ""
@@ -234,10 +232,11 @@ class MusicbdProvider : MainAPI() {
 
         try {
             val requestHeaders = mapOf(
+                "User-Agent" to defaultUserAgent,
                 "Referer" to "$mainUrl/"
             )
 
-            val doc = app.get(data, headers = requestHeaders, interceptor = webViewResolver).document
+            val doc = app.get(data, headers = requestHeaders).document
 
             var finalUrl = ""
 
