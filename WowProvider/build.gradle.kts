@@ -7,7 +7,7 @@ cloudstream {
     status = 1
     tvTypes = listOf("Movie")
     isCrossPlatform = false
-    requiresResources = true
+    requiresResources = false
     iconUrl = "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128"
 }
 
