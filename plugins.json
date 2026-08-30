@@ -64,10 +64,7 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-c8cfaed0716d332de16d35b53dff2e4ba176f3ef949cf3475dbeef2153adf685",
-        "jarFileSize": 57972,
-        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.jar",
-        "jarHash": "sha256-9dcc792b6d92426bfdcb6824cf043f4cfbc3e018d38fdbccc83a91723dbbede2"
+        "fileHash": "sha256-c8cfaed0716d332de16d35b53dff2e4ba176f3ef949cf3475dbeef2153adf685"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
