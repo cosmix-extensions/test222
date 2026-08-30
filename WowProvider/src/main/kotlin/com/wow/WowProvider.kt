@@ -3,32 +3,17 @@ package com.wow
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import java.util.regex.Pattern
 import java.util.Base64
 
-class WowProvider(private val plugin: WowPlugin) : MainAPI() {
-
+class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
     override var name = "Wow"
     override var lang = "en"
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    private val defaultUa =
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-
-    private val cfHeaders: Map<String, String>
-        get() {
-            val map = mutableMapOf("User-Agent" to (WowPlugin.cfUserAgent ?: defaultUa))
-            WowPlugin.cfCookies?.let { map["Cookie"] = it }
-            return map
-        }
+    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
@@ -93,7 +78,7 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
-        val doc = appGet(url).document
+        val doc = app.get(url, headers = ua, timeout = 60).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -101,47 +86,60 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
+
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
-            newMovieSearchResponse(title, href, TvType.Others) { this.posterUrl = poster }
+
+            newMovieSearchResponse(title, href, TvType.Others) {
+                this.posterUrl = poster
+            }
         }
+
         return newHomePageResponse(request.name, items, items.isNotEmpty())
     }
 
     override suspend fun search(query: String, page: Int): SearchResponseList? {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        val document = appGet(url).document
+        val document = app.get(url, headers = ua, timeout = 60).document
+
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
             val href = a.attr("href")
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
+
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
-            newMovieSearchResponse(title, href, TvType.Others) { this.posterUrl = poster }
+
+            newMovieSearchResponse(title, href, TvType.Others) {
+                this.posterUrl = poster
+            }
         }
+
         return newSearchResponseList(items, items.isNotEmpty())
     }
 
-    override suspend fun quickSearch(query: String): List<SearchResponse>? =
-        search(query, 1)?.items?.take(5)
+    override suspend fun quickSearch(query: String): List<SearchResponse>? {
+        return search(query, 1)?.items?.take(5)
+    }
 
     override suspend fun load(url: String): LoadResponse {
-        val resp = appGet(url)
-        val doc = resp.document
-        val html = resp.text
+        val doc = app.get(url, headers = ua, timeout = 60).document
+        val html = doc.html()
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
-            ?: doc.selectFirst(".player-container img")?.attr("src")
+        if (poster == null) {
+            poster = doc.selectFirst(".player-container img")?.attr("src")
+        }
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -158,7 +156,10 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
             }
             if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
             if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
-            newMovieSearchResponse(recTitle, recHref, TvType.Others) { this.posterUrl = recPoster }
+
+            newMovieSearchResponse(recTitle, recHref, TvType.Others) {
+                this.posterUrl = recPoster
+            }
         }
 
         val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
@@ -175,7 +176,12 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-            addTrailer(trailerUrl, referer = mainUrl, addRaw = true, headers = cfHeaders)
+            addTrailer(
+                trailerUrl,
+                referer = mainUrl,
+                addRaw = true,
+                headers = ua
+            )
         }
     }
 
@@ -187,7 +193,7 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
     ): Boolean {
         if (data.isBlank()) return false
         try {
-            val html = appGet(data).text
+            val html = app.get(data, headers = ua, timeout = 60).text
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
             while (matcher.find()) {
@@ -200,8 +206,18 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
 
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
-                    val decodedName = String(Base64.getDecoder().decode("RnVjayBQdXNzeQ=="))
-                    qualityName = decodedName
+                    
+                    val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
+                    val decodedName = String(decodedBytes)
+                    
+                    qualityName = when (q) {
+                        1080 -> decodedName
+                        720 -> decodedName
+                        480 -> decodedName
+                        360 -> decodedName
+                        else -> decodedName
+                    }
+
                     qualityValue = when (q) {
                         1080 -> Qualities.P1080.value
                         720 -> Qualities.P720.value
@@ -210,8 +226,14 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
                         else -> Qualities.Unknown.value
                     }
                 }
+
                 callback.invoke(
-                    newExtractorLink(this.name, qualityName, streamUrl, ExtractorLinkType.VIDEO) {
+                    newExtractorLink(
+                        this.name,
+                        qualityName,
+                        streamUrl,
+                        ExtractorLinkType.VIDEO
+                    ) {
                         quality = qualityValue
                     }
                 )
@@ -222,42 +244,5 @@ class WowProvider(private val plugin: WowPlugin) : MainAPI() {
             e.printStackTrace()
         }
         return false
-    }
-
-    private val CF_BLOCKER_PHRASES = listOf(
-        "just a moment", "checking your browser", "ddos-guard",
-        "verify you are human", "cf-browser-verification", "cf-chl-widget"
-    )
-
-    private val cfMutex = Mutex()
-
-    private fun isCloudflareBlocked(response: Response): Boolean {
-        if (response.code != 403 && response.code != 503) return false
-        val body = response.text.lowercase()
-        return CF_BLOCKER_PHRASES.any { body.contains(it) }
-    }
-
-    private suspend fun showCFBypassDialogAndWait(url: String) =
-        suspendCancellableCoroutine<Unit> { cont ->
-            val act = plugin.activity
-            if (act == null || act.isFinishing) {
-                cont.resume(Unit); return@suspendCancellableCoroutine
-            }
-            val dlg = CloudflareWebViewDialog(url) { _ ->
-                if (cont.isActive) cont.resume(Unit)
-            }
-            try { dlg.show(act.supportFragmentManager, "WowCFBypass") }
-            catch (_: Exception) { cont.resume(Unit) }
-        }
-
-    private suspend fun appGet(url: String): Response = withContext(Dispatchers.IO) {
-        cfMutex.withLock {
-            val first = app.get(url, headers = cfHeaders, timeout = 60)
-            if (WowPlugin.cfWebviewEnabled && isCloudflareBlocked(first)) {
-                withContext(Dispatchers.Main) { showCFBypassDialogAndWait(url) }
-                return@withLock app.get(url, headers = cfHeaders, timeout = 60)
-            }
-            first
-        }
     }
 }
