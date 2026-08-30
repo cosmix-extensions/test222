@@ -88,11 +88,9 @@ class WowProvider : MainAPI() {
         if (poster?.startsWith("//") == true) poster = "https:$poster"
         if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
-        // Preview video from listing page (data-preview)
         val preview = item.selectFirst("[data-preview]")?.attr("data-preview")
             ?: item.selectFirst(".thumb__img")?.attr("data-preview")
 
-        // Encode preview into url so load() can use it
         val finalUrl = if (!preview.isNullOrBlank()) "$href|$preview" else href
 
         return newMovieSearchResponse(title, finalUrl, TvType.Others) {
@@ -103,7 +101,6 @@ class WowProvider : MainAPI() {
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
         val doc = app.get(url, headers = ua, timeout = 60).document
-
         val items = doc.select("div.item").mapNotNull { extractItem(it) }
         return newHomePageResponse(request.name, items, items.isNotEmpty())
     }
@@ -112,10 +109,8 @@ class WowProvider : MainAPI() {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
         val document = app.get(url, headers = ua, timeout = 60).document
-
         val items = document.select("div.item").mapNotNull { extractItem(it) }
-        val hasNext = items.isNotEmpty()
-        return newSearchResponseList(items, hasNext)
+        return newSearchResponseList(items, items.isNotEmpty())
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse>? {
@@ -123,7 +118,6 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        // Split real url + preview that came from listing
         val parts = url.split("|", limit = 2)
         val realUrl = parts[0]
         val trailerFromList = parts.getOrNull(1)?.takeIf { it.contains("cast.wowxxx.to/preview") }
@@ -158,7 +152,6 @@ class WowProvider : MainAPI() {
             }
         }
 
-        // Fallback: construct from main video ID if listing preview not available
         val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
             ?: doc.selectFirst(".video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
@@ -174,7 +167,14 @@ class WowProvider : MainAPI() {
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-            addTrailer(trailerUrl)
+
+            // Critical: pass referer + headers so the trailer player can fetch the mp4
+            addTrailer(
+                trailerUrl,
+                referer = mainUrl,
+                addRaw = true,
+                headers = ua
+            )
         }
     }
 
