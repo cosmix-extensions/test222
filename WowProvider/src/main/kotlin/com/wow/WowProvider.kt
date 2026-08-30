@@ -13,7 +13,14 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+    private val cfHeaders: Map<String, String>
+        get() {
+            val map = mutableMapOf(
+                "User-Agent" to (WowPlugin.cfUserAgent ?: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+            )
+            WowPlugin.cfCookies?.let { map["Cookie"] = it }
+            return map
+        }
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
@@ -78,7 +85,7 @@ class WowProvider : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = app.get(url, headers = cfHeaders, timeout = 60).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -104,7 +111,7 @@ class WowProvider : MainAPI() {
     override suspend fun search(query: String, page: Int): SearchResponseList? {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        val document = app.get(url, headers = ua, timeout = 60).document
+        val document = app.get(url, headers = cfHeaders, timeout = 60).document
 
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -132,7 +139,7 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = app.get(url, headers = cfHeaders, timeout = 60).document
         val html = doc.html()
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
@@ -180,7 +187,7 @@ class WowProvider : MainAPI() {
                 trailerUrl,
                 referer = mainUrl,
                 addRaw = true,
-                headers = ua
+                headers = cfHeaders
             )
         }
     }
@@ -193,7 +200,7 @@ class WowProvider : MainAPI() {
     ): Boolean {
         if (data.isBlank()) return false
         try {
-            val html = app.get(data, headers = ua, timeout = 60).text
+            val html = app.get(data, headers = cfHeaders, timeout = 60).text
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
             while (matcher.find()) {
