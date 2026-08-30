@@ -56,7 +56,7 @@
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Avalibale",
-        "fileSize": 17292,
+        "fileSize": 17244,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -64,10 +64,10 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-28b19de71d39fe24172ce80da364aaaf9abb7f577b6ec3914129744c8fcafa95",
-        "jarFileSize": 57238,
+        "fileHash": "sha256-7654a4da96c019f4c852c6151b83359e8a70d65b91650812dd9a934f2f1c7a26",
+        "jarFileSize": 57459,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.jar",
-        "jarHash": "sha256-d5286a0642d09306ed9a4bff5b1f85f7872b35576dbf58d9eba974faef7150c3"
+        "jarHash": "sha256-73ad10f9b9c1e19bf80eca5f51f139f4af67e7dc664a6792fca22d2870bd247e"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
