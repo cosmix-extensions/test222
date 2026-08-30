@@ -19,34 +19,38 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.lagradost.cloudstream3.plugins.BasePlugin
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
-import com.lagradost.cloudstream3.utils.DataStore
+import com.lagradost.cloudstream3.plugins.Plugin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @CloudstreamPlugin
-class WowPlugin : BasePlugin() {
+class WowPlugin : Plugin() {
     companion object {
+        var pluginContext: Context? = null
+        
+        private val prefs get() = pluginContext?.getSharedPreferences("WowProviderPrefs", Context.MODE_PRIVATE)
+
         var cfCookies: String?
-            get() = DataStore.getKey("WOW_CF_COOKIES")
-            set(value) { DataStore.setKey("WOW_CF_COOKIES", value) }
+            get() = prefs?.getString("WOW_CF_COOKIES", null)
+            set(value) { prefs?.edit()?.putString("WOW_CF_COOKIES", value)?.apply() }
             
         var cfUserAgent: String?
-            get() = DataStore.getKey("WOW_CF_USER_AGENT")
-            set(value) { DataStore.setKey("WOW_CF_USER_AGENT", value) }
+            get() = prefs?.getString("WOW_CF_USER_AGENT", null)
+            set(value) { prefs?.edit()?.putString("WOW_CF_USER_AGENT", value)?.apply() }
             
         var cfCookieHost: String?
-            get() = DataStore.getKey("WOW_CF_COOKIE_HOST") ?: "www.wowxxx.to"
-            set(value) { DataStore.setKey("WOW_CF_COOKIE_HOST", value) }
+            get() = prefs?.getString("WOW_CF_COOKIE_HOST", "www.wowxxx.to")
+            set(value) { prefs?.edit()?.putString("WOW_CF_COOKIE_HOST", value)?.apply() }
             
         var cfWebviewEnabled: Boolean
-            get() = DataStore.getKey("WOW_CF_WEBVIEW_ENABLED") ?: false
-            set(value) { DataStore.setKey("WOW_CF_WEBVIEW_ENABLED", value) }
+            get() = prefs?.getBoolean("WOW_CF_WEBVIEW_ENABLED", false) ?: false
+            set(value) { prefs?.edit()?.putBoolean("WOW_CF_WEBVIEW_ENABLED", value)?.apply() }
     }
 
     override fun load(context: Context) {
+        pluginContext = context
         registerMainAPI(WowProvider())
         this.settings = WowSettingsFragment()
     }
