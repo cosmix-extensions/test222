@@ -206,7 +206,15 @@ class WowProvider : MainAPI() {
 
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
-                    qualityName = "${q}p"
+                    
+                    qualityName = when (q) {
+                        1080 -> "Fuck Pussy"
+                        720 -> "Fuck Pussy"
+                        480 -> "Fuck Pussy"
+                        360 -> "Fuck Pussy"
+                        else -> "Fuck Pussy"
+                    }
+
                     qualityValue = when (q) {
                         1080 -> Qualities.P1080.value
                         720 -> Qualities.P720.value
