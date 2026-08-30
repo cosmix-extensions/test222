@@ -75,33 +75,28 @@ class WowProvider : MainAPI() {
         "$mainUrl/models/violet-myers/" to "Violet Myers"
     )
 
-    private fun extractItem(item: org.jsoup.nodes.Element): MovieSearchResponse? {
-        val a = item.selectFirst("a[href*=/videos/]") ?: return null
-        val href = a.attr("href")
-        val title = a.attr("title").trim().ifEmpty {
-            item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
-        }
-
-        var poster = item.selectFirst("img")?.let { img ->
-            img.attr("data-src").ifEmpty { img.attr("src") }
-        }
-        if (poster?.startsWith("//") == true) poster = "https:$poster"
-        if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
-
-        val preview = item.selectFirst("[data-preview]")?.attr("data-preview")
-            ?: item.selectFirst(".thumb__img")?.attr("data-preview")
-
-        val finalUrl = if (!preview.isNullOrBlank()) "$href|$preview" else href
-
-        return newMovieSearchResponse(title, finalUrl, TvType.Others) {
-            this.posterUrl = poster
-        }
-    }
-
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
         val doc = app.get(url, headers = ua, timeout = 60).document
-        val items = doc.select("div.item").mapNotNull { extractItem(it) }
+
+        val items = doc.select("div.item").mapNotNull { item ->
+            val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
+            val href = a.attr("href")
+            val title = a.attr("title").trim().ifEmpty {
+                item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
+            }
+
+            var poster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (poster?.startsWith("//") == true) poster = "https:$poster"
+            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
+
+            newMovieSearchResponse(title, href, TvType.Others) {
+                this.posterUrl = poster
+            }
+        }
+
         return newHomePageResponse(request.name, items, items.isNotEmpty())
     }
 
@@ -109,7 +104,25 @@ class WowProvider : MainAPI() {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
         val document = app.get(url, headers = ua, timeout = 60).document
-        val items = document.select("div.item").mapNotNull { extractItem(it) }
+
+        val items = document.select("div.item").mapNotNull { item ->
+            val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
+            val href = a.attr("href")
+            val title = a.attr("title").trim().ifEmpty {
+                item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
+            }
+
+            var poster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (poster?.startsWith("//") == true) poster = "https:$poster"
+            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
+
+            newMovieSearchResponse(title, href, TvType.Others) {
+                this.posterUrl = poster
+            }
+        }
+
         return newSearchResponseList(items, items.isNotEmpty())
     }
 
@@ -118,11 +131,7 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val parts = url.split("|", limit = 2)
-        val realUrl = parts[0]
-        val trailerFromList = parts.getOrNull(1)?.takeIf { it.contains("cast.wowxxx.to/preview") }
-
-        val doc = app.get(realUrl, headers = ua, timeout = 60).document
+        val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
@@ -152,23 +161,21 @@ class WowProvider : MainAPI() {
             }
         }
 
+        // ===== Specific selectors for MAIN video ID only =====
         val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
-            ?: doc.selectFirst(".video-favourites[data-object_id]")?.attr("data-object_id")
+            ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
             ?: Regex("""img\.wowxxx\.to/\d+/(\d+)/""").find(html)?.groupValues?.get(1)
 
-        val trailerUrl = trailerFromList
-            ?: videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" }
+        val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" }
 
-        return newMovieLoadResponse(title, realUrl, TvType.Others, realUrl) {
+        return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
             this.plot = plotText
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-
-            // Critical: pass referer + headers so the trailer player can fetch the mp4
             addTrailer(
                 trailerUrl,
                 referer = mainUrl,
