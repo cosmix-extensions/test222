@@ -17,6 +17,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
@@ -68,61 +69,109 @@ class WowPlugin : Plugin() {
 
 class WowSettingsFragment(private val plugin: WowPlugin) : BottomSheetDialogFragment() {
 
-    @SuppressLint("DiscouragedApi")
-    private fun resId(name: String, type: String): Int? =
-        plugin.resources?.getIdentifier(name, type, "com.wow")
-
-    @SuppressLint("DiscouragedApi")
-    private fun <T : View> View.findByName(name: String): T? {
-        val id = resId(name, "id") ?: return null
-        @Suppress("UNCHECKED_CAST")
-        return findViewById<T>(id)
-    }
-
-    @SuppressLint("DiscouragedApi")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val id = resId("bottom_sheet_layout", "layout") ?: return null
-        return plugin.resources?.getLayout(id)?.let {
-            inflater.inflate(it, container, false)
-        }
-    }
+    ): View {
+        val ctx = requireContext()
+        val density = resources.displayMetrics.density
+        val pad20 = (20 * density).toInt()
+        val pad8 = (8 * density).toInt()
+        val pad12 = (12 * density).toInt()
+        val pad16 = (16 * density).toInt()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val title: TextView? = view.findByName("title")
-        val description: TextView? = view.findByName("description")
-        val autoBypass: Switch? = view.findByName("auto_bypass")
-        val bypassButton: Button? = view.findByName("bypass_button")
-        val clearButton: Button? = view.findByName("clear_button")
-
-        title?.text = "Cloudflare Protection"
-        description?.text =
-            "If Wow shows a \"Just a moment\" screen, turn on Auto Bypass and reload, " +
-            "or tap \"Bypass Cloudflare\" to open a WebView and solve the challenge."
-
-        autoBypass?.isChecked = WowPlugin.cfWebviewEnabled
-        autoBypass?.setOnCheckedChangeListener { _, checked ->
-            WowPlugin.cfWebviewEnabled = checked
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad20, pad20, pad20, pad20)
+            setBackgroundColor(Color.parseColor("#1E1E1E"))
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
 
-        bypassButton?.setOnClickListener {
-            val act = plugin.activity ?: return@setOnClickListener
-            val dialog = CloudflareWebViewDialog("https://www.wowxxx.to/") { _ -> }
-            dialog.show(act.supportFragmentManager, "WowCFBypass")
-            dismiss()
+        val title = TextView(ctx).apply {
+            text = "Cloudflare Protection"
+            setTextColor(Color.WHITE)
+            textSize = 20f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, 0, 0, pad8)
         }
 
-        clearButton?.setOnClickListener {
-            WowPlugin.cfCookies = null
-            WowPlugin.cfUserAgent = null
-            WowPlugin.cfCookieHost = "www.wowxxx.to"
-            autoBypass?.isChecked = false
-            Toast.makeText(plugin.activity, "Cookies Cleared", Toast.LENGTH_SHORT).show()
+        val description = TextView(ctx).apply {
+            text = "If Wow shows a \"Just a moment\" screen, turn on Auto Bypass and reload, or tap \"Bypass Cloudflare\" to open a WebView and solve the challenge."
+            setTextColor(Color.parseColor("#CCCCCC"))
+            textSize = 14f
+            setPadding(0, 0, 0, pad16)
+        }
+
+        val switchLayout = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 0, 0, pad12)
+        }
+
+        val switchText = TextView(ctx).apply {
+            text = "Auto WebView Bypass"
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val autoBypass = Switch(ctx).apply {
+            isChecked = WowPlugin.cfWebviewEnabled
+            setOnCheckedChangeListener { _, isChecked ->
+                WowPlugin.cfWebviewEnabled = isChecked
+            }
+        }
+
+        switchLayout.addView(switchText)
+        switchLayout.addView(autoBypass)
+
+        val bypassButton = Button(ctx).apply {
+            text = "Bypass Cloudflare"
+            setPadding(0, 0, 0, 0)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = pad8 }
+            
+            setOnClickListener {
+                val act = plugin.activity ?: return@setOnClickListener
+                val dialog = CloudflareWebViewDialog("https://www.wowxxx.to/") { _ -> }
+                dialog.show(act.supportFragmentManager, "WowCFBypass")
+                dismiss()
+            }
+        }
+
+        val clearButton = Button(ctx).apply {
+            text = "Clear CF Cookies"
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setOnClickListener {
+                WowPlugin.cfCookies = null
+                WowPlugin.cfUserAgent = null
+                WowPlugin.cfCookieHost = "www.wowxxx.to"
+                autoBypass.isChecked = false
+                Toast.makeText(plugin.activity, "Cookies Cleared", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        root.addView(title)
+        root.addView(description)
+        root.addView(switchLayout)
+        root.addView(bypassButton)
+        root.addView(clearButton)
+
+        return NestedScrollView(ctx).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            addView(root)
         }
     }
 }
