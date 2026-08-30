@@ -1,6 +1,7 @@
 package com.wow
 
 import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 
@@ -162,12 +163,20 @@ class WowProvider : MainAPI() {
             }
         }
 
+        val videoId = doc.selectFirst("[data-object_id]")?.attr("data-object_id")
+            ?: doc.selectFirst("[data-video-id]")?.attr("data-video-id")
+            ?: Regex("""/(\d{6,})/""").find(url)?.groupValues?.get(1)
+            ?: Regex("""/(\d{6,})/""").find(poster ?: "")?.groupValues?.get(1)
+
+        val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" }
+
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
             this.plot = plotText
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
+            addTrailer(trailerUrl)
         }
     }
 
