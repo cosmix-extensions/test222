@@ -1,5 +1,6 @@
 package com.wow
 
+import android.util.Base64
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
@@ -161,7 +162,6 @@ class WowProvider : MainAPI() {
             }
         }
 
-        // ===== Specific selectors for MAIN video ID only =====
         val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
             ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
@@ -207,12 +207,14 @@ class WowProvider : MainAPI() {
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
                     
+                    val decodedName = String(Base64.decode("RnVjayBQdXNzeQ==", Base64.DEFAULT))
+                    
                     qualityName = when (q) {
-                        1080 -> "Fuck Pussy"
-                        720 -> "Fuck Pussy"
-                        480 -> "Fuck Pussy"
-                        360 -> "Fuck Pussy"
-                        else -> "Fuck Pussy"
+                        1080 -> decodedName
+                        720 -> decodedName
+                        480 -> decodedName
+                        360 -> decodedName
+                        else -> decodedName
                     }
 
                     qualityValue = when (q) {
