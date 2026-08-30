@@ -1,10 +1,10 @@
 package com.wow
 
-import android.util.Base64
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
+import java.util.Base64
 
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
@@ -207,7 +207,8 @@ class WowProvider : MainAPI() {
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
                     
-                    val decodedName = String(Base64.decode("RnVjayBQdXNzeQ==", Base64.DEFAULT))
+                    val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
+                    val decodedName = String(decodedBytes)
                     
                     qualityName = when (q) {
                         1080 -> decodedName
