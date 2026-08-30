@@ -135,6 +135,7 @@ class WowProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url, headers = ua, timeout = 60).document
+        val html = doc.html()
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
@@ -163,9 +164,12 @@ class WowProvider : MainAPI() {
             }
         }
 
-        val videoId = doc.selectFirst("[data-object_id]")?.attr("data-object_id")
-            ?: doc.selectFirst("[data-video-id]")?.attr("data-video-id")
-            ?: Regex("""/(\d{6,})/""").find(url)?.groupValues?.get(1)
+        // Reliable main video ID extraction (avoids related videos)
+        val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
+            ?: doc.selectFirst(".video-favourites[data-object_id]")?.attr("data-object_id")
+            ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
+            ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
+            ?: Regex("""img\.wowxxx\.to/\d+/(\d+)/""").find(html)?.groupValues?.get(1)
             ?: Regex("""/(\d{6,})/""").find(poster ?: "")?.groupValues?.get(1)
 
         val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" }
@@ -180,7 +184,12 @@ class WowProvider : MainAPI() {
         }
     }
 
-    override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
         if (data.isBlank()) return false
         try {
             val html = app.get(data, headers = ua, timeout = 60).text
