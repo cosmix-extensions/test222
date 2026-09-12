@@ -98,7 +98,10 @@ class WowProvider : MainAPI() {
             }
         }
 
-        return newHomePageResponse(request.name, items, items.isNotEmpty())
+        return newHomePageResponse(
+            HomePageList(request.name, items, isHorizontalImages = true),
+            items.isNotEmpty()
+        )
     }
 
     override suspend fun search(query: String, page: Int): SearchResponseList? {
