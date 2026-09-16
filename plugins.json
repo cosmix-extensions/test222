@@ -1,19 +1,5 @@
 [
     {
-        "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/1tv.cs3",
-        "status": 3,
-        "version": -1,
-        "name": "1tv",
-        "internalName": "1tv",
-        "authors": [
-            
-        ],
-        "fileSize": 17575,
-        "repositoryUrl": "https://github.com/cosmix-extensions/test222",
-        "apiVersion": 1,
-        "fileHash": "sha256-55f1871ac040a44c92d26e026e6c4d98cc482ae4a470607b65584c2de93d1618"
-    },
-    {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.cs3",
         "status": 1,
         "version": 9,
@@ -35,6 +21,29 @@
         "jarFileSize": 41575,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.jar",
         "jarHash": "sha256-4500270dd9117396e599d5ed248678181c17ac3cec69a77a10aa2b4accabd001"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
+        "status": 1,
+        "version": 2,
+        "name": "onetv",
+        "internalName": "onetv",
+        "authors": [
+            "Cloudstream Extension"
+        ],
+        "description": "Only NSFW Movies Avalibale",
+        "fileSize": 17571,
+        "repositoryUrl": "https://github.com/cosmix-extensions/test222",
+        "language": "en",
+        "tvTypes": [
+            "Movie"
+        ],
+        "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128",
+        "apiVersion": 1,
+        "fileHash": "sha256-a63faad118115abffceb57123b8e81a8e6b2cefed2fc195c70a0fac4b0c698a5",
+        "jarFileSize": 59445,
+        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.jar",
+        "jarHash": "sha256-a5427bec7146aad6837137a394e96f39d88a260ce7f723eeb489191de5196a86"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.cs3",
