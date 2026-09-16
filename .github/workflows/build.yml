@@ -29,12 +29,14 @@ jobs:
           ./gradlew ViralLinksProvider:make
           ./gradlew WowProvider:make
           ./gradlew WowUncutProvider:make
+          ./gradlew 1tv:make
           ./gradlew makePluginsJson
           mkdir -p build_output
           cp HamsterProvider/build/*.cs3 build_output/ || true
           cp ViralLinksProvider/build/*.cs3 build_output/ || true
           cp WowProvider/build/*.cs3 build_output/ || true
           cp WowUncutProvider/build/*.cs3 build_output/ || true
+          cp 1tv/build/*.cs3 build_output/ || true
           cp build/plugins.json build_output/plugins.json
           echo '{
             "name": "NSFW Providers",
