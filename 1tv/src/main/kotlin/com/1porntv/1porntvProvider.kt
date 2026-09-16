@@ -1,4 +1,4 @@
-package com.1porntv
+package com.oneporntv
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
@@ -6,8 +6,8 @@ import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 import java.util.Base64
 
-class WowProvider : MainAPI() {
-    override var mainUrl = "https://www.1porn.tv/"
+class OnePornTvProvider : MainAPI() {
+    override var mainUrl = "https://www.1porn.tv"
     override var name = "1PornTv"
     override var lang = "en"
     override val hasMainPage = true
@@ -137,7 +137,7 @@ class WowProvider : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
+        val title = doc.title().trim().replace(" - 1porn.tv", "", true).trim() // Adjusted title cleaning
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         if (poster == null) {
@@ -169,9 +169,9 @@ class WowProvider : MainAPI() {
             ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
-            ?: Regex("""img\.wowxxx\.to/\d+/(\d+)/""").find(html)?.groupValues?.get(1)
+            ?: Regex("""img\.wowxxx\.to/\d+/(\d+)/""").find(html)?.groupValues?.get(1) // Might need adjustment if host differs
 
-        val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" }
+        val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" } // Might need adjustment if host differs
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
@@ -179,12 +179,14 @@ class WowProvider : MainAPI() {
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-            addTrailer(
-                trailerUrl,
-                referer = mainUrl,
-                addRaw = true,
-                headers = ua
-            )
+            if(trailerUrl != null) {
+                addTrailer(
+                    trailerUrl,
+                    referer = mainUrl,
+                    addRaw = true,
+                    headers = ua
+                )
+            }
         }
     }
 
