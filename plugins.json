@@ -1,26 +1,17 @@
 [
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/1tv.cs3",
-        "status": 1,
-        "version": 5,
+        "status": 3,
+        "version": -1,
         "name": "1tv",
         "internalName": "1tv",
         "authors": [
-            "Cloudstream Extension"
+            
         ],
-        "description": "Only NSFW Movies Avalibale",
         "fileSize": 17575,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
-        "language": "en",
-        "tvTypes": [
-            "Movie"
-        ],
-        "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-1e88d7ff3b86d03d1dd4d576b36cc350ab5d033d93c74a29c10cd40a06fde91d",
-        "jarFileSize": 59395,
-        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/1tv.jar",
-        "jarHash": "sha256-c8d49760168afc1ea2e607982fd0f64f55e6485edd8ed2a217f0300a344edd54"
+        "fileHash": "sha256-55f1871ac040a44c92d26e026e6c4d98cc482ae4a470607b65584c2de93d1618"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.cs3",
