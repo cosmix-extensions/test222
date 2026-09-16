@@ -8,7 +8,7 @@ import java.util.Base64
 
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.1porn.tv/"
-    override var name = "Wow"
+    override var name = "1PornTv"
     override var lang = "en"
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
