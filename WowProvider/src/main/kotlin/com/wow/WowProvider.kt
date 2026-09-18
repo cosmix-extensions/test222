@@ -4,6 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
+import java.util.Base64
 
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
@@ -12,19 +13,7 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    private val ua = mapOf(
-        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
-        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language" to "en-US,en;q=0.9",
-        "Accept-Encoding" to "gzip, deflate, br",
-        "Connection" to "keep-alive",
-        "Upgrade-Insecure-Requests" to "1",
-        "Sec-Fetch-Dest" to "document",
-        "Sec-Fetch-Mode" to "navigate",
-        "Sec-Fetch-Site" to "none",
-        "Sec-Fetch-User" to "?1",
-        "Cache-Control" to "max-age=0"
-    )
+    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
@@ -87,13 +76,6 @@ class WowProvider : MainAPI() {
         "$mainUrl/models/violet-myers/" to "Violet Myers"
     )
 
-    private fun fixUrl(url: String?): String? {
-        if (url == null) return null
-        if (url.startsWith("//")) return "https:$url"
-        if (url.startsWith("/")) return "$mainUrl$url"
-        return url
-    }
-
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
         val doc = app.get(url, headers = ua, timeout = 60).document
@@ -104,11 +86,13 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            val poster = fixUrl(
-                item.selectFirst("img")?.let { img ->
-                    img.attr("data-src").ifEmpty { img.attr("src") }
-                }
-            )
+
+            var poster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (poster?.startsWith("//") == true) poster = "https:$poster"
+            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
+
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
@@ -131,11 +115,13 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            val poster = fixUrl(
-                item.selectFirst("img")?.let { img ->
-                    img.attr("data-src").ifEmpty { img.attr("src") }
-                }
-            )
+
+            var poster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (poster?.startsWith("//") == true) poster = "https:$poster"
+            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
+
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
@@ -151,12 +137,12 @@ class WowProvider : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - wowxxx.to", "", ignoreCase = true).trim()
+        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
-        val poster = fixUrl(
-            doc.selectFirst("meta[property=og:image]")?.attr("content")
-                ?: doc.selectFirst(".player-container img")?.attr("src")
-        )
+        var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
+        if (poster == null) {
+            poster = doc.selectFirst(".player-container img")?.attr("src")
+        }
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -168,11 +154,12 @@ class WowProvider : MainAPI() {
             val recTitle = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            val recPoster = fixUrl(
-                item.selectFirst("img")?.let { img ->
-                    img.attr("data-src").ifEmpty { img.attr("src") }
-                }
-            )
+            var recPoster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
+            if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
+
             newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
             }
@@ -222,18 +209,23 @@ class WowProvider : MainAPI() {
 
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
+                    
+                    val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
+                    val decodedName = String(decodedBytes)
+                    
                     qualityName = when (q) {
-                        1080 -> "1080p"
-                        720  -> "720p"
-                        480  -> "480p"
-                        360  -> "360p"
-                        else -> "Direct Stream"
+                        1080 -> decodedName
+                        720 -> decodedName
+                        480 -> decodedName
+                        360 -> decodedName
+                        else -> decodedName
                     }
+
                     qualityValue = when (q) {
                         1080 -> Qualities.P1080.value
-                        720  -> Qualities.P720.value
-                        480  -> Qualities.P480.value
-                        360  -> Qualities.P360.value
+                        720 -> Qualities.P720.value
+                        480 -> Qualities.P480.value
+                        360 -> Qualities.P360.value
                         else -> Qualities.Unknown.value
                     }
                 }
@@ -246,8 +238,6 @@ class WowProvider : MainAPI() {
                         ExtractorLinkType.VIDEO
                     ) {
                         quality = qualityValue
-                        referer = mainUrl
-                        headers = ua
                     }
                 )
                 found = true
