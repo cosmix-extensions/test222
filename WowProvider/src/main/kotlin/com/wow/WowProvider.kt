@@ -2,7 +2,11 @@ package com.wow
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
+import com.lagradost.cloudstream3.network.CloudflareKiller
 import com.lagradost.cloudstream3.utils.*
+import okhttp3.Interceptor
+import okhttp3.Response
+import org.jsoup.Jsoup
 import java.util.regex.Pattern
 import java.util.Base64
 
@@ -13,7 +17,28 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+    // Lazy-initialized CloudflareKiller instance
+    private val cloudflareKiller by lazy { CloudflareKiller() }
+
+    // Custom interceptor that detects Cloudflare challenge pages and triggers bypass
+    private val interceptor by lazy { CloudflareInterceptor(cloudflareKiller) }
+
+    class CloudflareInterceptor(private val cfKiller: CloudflareKiller) : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val request = chain.request()
+            val response = chain.proceed(request)
+            val doc = Jsoup.parse(response.peekBody(1024 * 1024).string())
+            // Cloudflare challenge page detection
+            if (doc.select("title").text() == "Just a moment...") {
+                return cfKiller.intercept(chain)
+            }
+            return response
+        }
+    }
+
+    private val ua = mapOf(
+        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+    )
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
@@ -76,9 +101,19 @@ class WowProvider : MainAPI() {
         "$mainUrl/models/violet-myers/" to "Violet Myers"
     )
 
+    // Helper to normalize poster URLs
+    private fun normalizePoster(poster: String?): String? {
+        if (poster == null) return null
+        return when {
+            poster.startsWith("//") -> "https:$poster"
+            poster.startsWith("/") -> "$mainUrl$poster"
+            else -> poster
+        }
+    }
+
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = app.get(url, headers = ua, interceptor = interceptor, timeout = 120).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -86,13 +121,11 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-
-            var poster = item.selectFirst("img")?.let { img ->
-                img.attr("data-src").ifEmpty { img.attr("src") }
-            }
-            if (poster?.startsWith("//") == true) poster = "https:$poster"
-            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
-
+            val poster = normalizePoster(
+                item.selectFirst("img")?.let { img ->
+                    img.attr("data-src").ifEmpty { img.attr("src") }
+                }
+            )
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
@@ -107,7 +140,7 @@ class WowProvider : MainAPI() {
     override suspend fun search(query: String, page: Int): SearchResponseList? {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        val document = app.get(url, headers = ua, timeout = 60).document
+        val document = app.get(url, headers = ua, interceptor = interceptor, timeout = 120).document
 
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -115,13 +148,11 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-
-            var poster = item.selectFirst("img")?.let { img ->
-                img.attr("data-src").ifEmpty { img.attr("src") }
-            }
-            if (poster?.startsWith("//") == true) poster = "https:$poster"
-            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
-
+            val poster = normalizePoster(
+                item.selectFirst("img")?.let { img ->
+                    img.attr("data-src").ifEmpty { img.attr("src") }
+                }
+            )
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
@@ -135,9 +166,9 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = app.get(url, headers = ua, interceptor = interceptor, timeout = 120).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
+        val title = doc.title().trim().replace(" - wowxxx.to", "", ignoreCase = true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         if (poster == null) {
@@ -154,17 +185,17 @@ class WowProvider : MainAPI() {
             val recTitle = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            var recPoster = item.selectFirst("img")?.let { img ->
-                img.attr("data-src").ifEmpty { img.attr("src") }
-            }
-            if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
-            if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
-
+            val recPoster = normalizePoster(
+                item.selectFirst("img")?.let { img ->
+                    img.attr("data-src").ifEmpty { img.attr("src") }
+                }
+            )
             newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
             }
         }
 
+        // Try multiple methods to extract video ID for trailer
         val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
             ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
@@ -196,9 +227,10 @@ class WowProvider : MainAPI() {
     ): Boolean {
         if (data.isBlank()) return false
         try {
-            val html = app.get(data, headers = ua, timeout = 60).text
+            val html = app.get(data, headers = ua, interceptor = interceptor, timeout = 120).text
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
+
             while (matcher.find()) {
                 var streamUrl = matcher.group(1) ?: continue
                 if (streamUrl.startsWith("//")) streamUrl = "https:$streamUrl"
@@ -209,23 +241,18 @@ class WowProvider : MainAPI() {
 
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
-                    
+
+                    // Decode stream label from Base64
                     val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
                     val decodedName = String(decodedBytes)
-                    
-                    qualityName = when (q) {
-                        1080 -> decodedName
-                        720 -> decodedName
-                        480 -> decodedName
-                        360 -> decodedName
-                        else -> decodedName
-                    }
+
+                    qualityName = decodedName
 
                     qualityValue = when (q) {
                         1080 -> Qualities.P1080.value
-                        720 -> Qualities.P720.value
-                        480 -> Qualities.P480.value
-                        360 -> Qualities.P360.value
+                        720  -> Qualities.P720.value
+                        480  -> Qualities.P480.value
+                        360  -> Qualities.P360.value
                         else -> Qualities.Unknown.value
                     }
                 }
