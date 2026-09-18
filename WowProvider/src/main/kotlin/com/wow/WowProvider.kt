@@ -16,7 +16,7 @@ class WowProvider : MainAPI() {
     override var name = "Wow"
     override var lang = "en"
     override val hasMainPage = true
-    override val supportedTypes = setOf(TvType.NSFW)
+    override val supportedTypes = setOf(TvType.Others)
 
     // Sequential loading prevents hammering Cloudflare with parallel requests
     override var sequentialMainPage = true
