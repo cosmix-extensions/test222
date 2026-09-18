@@ -9,7 +9,7 @@
             "Cloudstream Extension"
         ],
         "description": "xHamster - Free Porn Videos & XXX Movies",
-        "fileSize": 13398,
+        "fileSize": 13351,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -17,10 +17,10 @@
         ],
         "iconUrl": "https://static-ah.xhcdn.com/xh-desktop/images/favicon/favicon-v2-128x128.png",
         "apiVersion": 1,
-        "fileHash": "sha256-4ea9627a6794e54d1edb77f5ea9dbbc6dd40e79c5a7779fb5ef635d5da21c148",
-        "jarFileSize": 41575,
+        "fileHash": "sha256-979e9353895098c3f93e3cabcbfd0088416860b8c147eb9f78102c0191d15026",
+        "jarFileSize": 41851,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.jar",
-        "jarHash": "sha256-4500270dd9117396e599d5ed248678181c17ac3cec69a77a10aa2b4accabd001"
+        "jarHash": "sha256-eb5b77b06301268d82471fc78df24a1df436ab54833acc22acdccc0d8bac1991"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
@@ -32,7 +32,7 @@
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Avalibale",
-        "fileSize": 17571,
+        "fileSize": 17659,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -40,10 +40,10 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-a63faad118115abffceb57123b8e81a8e6b2cefed2fc195c70a0fac4b0c698a5",
-        "jarFileSize": 59445,
+        "fileHash": "sha256-2c1edbd85ffb7e9bad6ffc1256eb2f2e5bc762dcc68593ff79d8b8aa7c8810b3",
+        "jarFileSize": 59576,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.jar",
-        "jarHash": "sha256-a5427bec7146aad6837137a394e96f39d88a260ce7f723eeb489191de5196a86"
+        "jarHash": "sha256-8ae0e7188d714ce0274ddf47bebe38258c1796d70929fb5c91c4d10fa3d48046"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.cs3",
@@ -55,7 +55,7 @@
             "Cloudstream Extension"
         ],
         "description": "ViralLinksProvider",
-        "fileSize": 15371,
+        "fileSize": 15483,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -64,10 +64,10 @@
         ],
         "iconUrl": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQvNXfZt7ctszD6Fy_FwU7NfcyxIEZ6uW6asTw_5cMPS38hkm65bQdzb2bCD-86XfOUVmp5xjOANaefT4ZdWSCf_picqYtsAN5McX_3gVEfdVa5EA4h9e2noiaNLwUhMK8VaGx1mQGI_7TCnpmEI3LxtgNPeVpKsojjSbqSZh50VbyrTiP7_2KOIusBBsC/s1024/1000073990.png",
         "apiVersion": 1,
-        "fileHash": "sha256-6f3ac00da4608c37adab637f2baf2d1dc00fd028deceb5f2bfb25b9cc6da3219",
-        "jarFileSize": 69448,
+        "fileHash": "sha256-a846bd4175367aaa18067cc10892c7d1c9753c5bc2c31b713b52af06b82d367b",
+        "jarFileSize": 70148,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.jar",
-        "jarHash": "sha256-0f564478d8be72d8e204327191b62045478b124a368d136e9fc61de8d86b69f5"
+        "jarHash": "sha256-e519812d9b704ff45d7dc9b6c3f39cba079a9305451c01b13b00f4e82b5aa501"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.cs3",
@@ -79,7 +79,7 @@
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Available",
-        "fileSize": 17530,
+        "fileSize": 40239,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -87,7 +87,7 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-2e8551f45fabdf251b52c89c2c5a3d4423fe8d43f199b3049e791669f2b29d60"
+        "fileHash": "sha256-5789d9c61ebcc127b00aaa40592cfb0b98913b55795cc3ece2dbd13a41dae722"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
@@ -99,7 +99,7 @@
             "Cloudstream Extension"
         ],
         "description": "WowUncut - Hindi, Bengali, Tamil & More Web Series",
-        "fileSize": 12783,
+        "fileSize": 12761,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "hi",
         "tvTypes": [
@@ -109,9 +109,9 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://wowuncut.com/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-23b44180e04daf6d6928aa54125ee04d38fb618ec8145a03525a6b93cfd28062",
-        "jarFileSize": 45857,
+        "fileHash": "sha256-750189027e7873161eccb968aa276dfba69dccbe6dc699bf8c72864491a1f8d4",
+        "jarFileSize": 46074,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.jar",
-        "jarHash": "sha256-a6045fd704a1379a13a969c741c9f2bd8555cbd188d54149a6515d19739447cd"
+        "jarHash": "sha256-cea332aff2ddb91d3b06d08a0562909cfa776db69fde00f1c7f283cd755a7f1a"
     }
 ]
