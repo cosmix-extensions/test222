@@ -72,14 +72,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.cs3",
         "status": 1,
-        "version": 6,
+        "version": 5,
         "name": "WowProvider",
         "internalName": "WowProvider",
         "authors": [
             "Cloudstream Extension"
         ],
-        "description": "Only NSFW Movies Available",
-        "fileSize": 40239,
+        "description": "Only NSFW Movies Avalibale",
+        "fileSize": 17612,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -87,7 +87,10 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-5789d9c61ebcc127b00aaa40592cfb0b98913b55795cc3ece2dbd13a41dae722"
+        "fileHash": "sha256-2ce6bccfacd71ceae787eb3fda8b3fed2df28194afb055ce80cb2e40406e0c85",
+        "jarFileSize": 58212,
+        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.jar",
+        "jarHash": "sha256-97b354f3ea2cc5360158de8c3111193d7806d08e2b8216223a3b07955b5a2d12"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
