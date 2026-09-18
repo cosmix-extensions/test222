@@ -2,14 +2,9 @@ package com.wow
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
-import com.lagradost.cloudstream3.network.CloudflareKiller
 import com.lagradost.cloudstream3.utils.*
-import okhttp3.Interceptor
-import okhttp3.Response
 import java.util.regex.Pattern
 import java.util.Base64
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
@@ -18,54 +13,7 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    // Sequential loading prevents hammering Cloudflare with parallel requests
-    override var sequentialMainPage = true
-    override var sequentialMainPageDelay = 500L
-    override var sequentialMainPageScrollDelay = 500L
-
-    private val cloudflareKiller by lazy { CloudflareKiller() }
-    private val interceptor by lazy { CloudflareInterceptor(cloudflareKiller) }
-
-    // Cached session cookies after first Cloudflare solve
-    private var sessionCookies: Map<String, String>? = null
-    private val initMutex = Mutex()
-
-    class CloudflareInterceptor(private val cfKiller: CloudflareKiller) : Interceptor {
-        override fun intercept(chain: Interceptor.Chain): Response {
-            val request = chain.request()
-            val response = chain.proceed(request)
-            try {
-                val body = response.peekBody(1024 * 1024).string()
-                // Check both title and body for Cloudflare indicators
-                if (body.contains("Just a moment") || body.contains("cloudflare") || response.code == 403 || response.code == 503) {
-                    return cfKiller.intercept(chain)
-                }
-            } catch (e: Exception) {
-                // ignore peek errors
-            }
-            return response
-        }
-    }
-
-    private val ua = mapOf(
-        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language" to "en-US,en;q=0.5"
-    )
-
-    // Solve Cloudflare once and cache cookies for all subsequent requests
-    private suspend fun initSession() {
-        if (sessionCookies != null) return
-        initMutex.withLock {
-            if (sessionCookies != null) return@withLock
-            try {
-                val resp = app.get("$mainUrl/", interceptor = interceptor, headers = ua, timeout = 120)
-                sessionCookies = resp.cookies.ifEmpty { emptyMap() }
-            } catch (e: Exception) {
-                sessionCookies = emptyMap()
-            }
-        }
-    }
+    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
@@ -128,25 +76,9 @@ class WowProvider : MainAPI() {
         "$mainUrl/models/violet-myers/" to "Violet Myers"
     )
 
-    private fun normalizePoster(poster: String?): String? {
-        if (poster == null) return null
-        return when {
-            poster.startsWith("//") -> "https:$poster"
-            poster.startsWith("/") -> "$mainUrl$poster"
-            else -> poster
-        }
-    }
-
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        initSession()
         val url = if (page == 1) request.data else "${request.data}$page/"
-        val doc = app.get(
-            url,
-            headers = ua,
-            cookies = sessionCookies ?: emptyMap(),
-            interceptor = interceptor,
-            timeout = 120
-        ).document
+        val doc = app.get(url, headers = ua, timeout = 60).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -154,12 +86,14 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            val poster = normalizePoster(
-                item.selectFirst("img")?.let { img ->
-                    img.attr("data-src").ifEmpty { img.attr("src") }
-                }
-            )
-            newMovieSearchResponse(title, href, TvType.NSFW) {
+
+            var poster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (poster?.startsWith("//") == true) poster = "https:$poster"
+            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
+
+            newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
         }
@@ -171,16 +105,9 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun search(query: String, page: Int): SearchResponseList? {
-        initSession()
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        val document = app.get(
-            url,
-            headers = ua,
-            cookies = sessionCookies ?: emptyMap(),
-            interceptor = interceptor,
-            timeout = 120
-        ).document
+        val document = app.get(url, headers = ua, timeout = 60).document
 
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -188,12 +115,14 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            val poster = normalizePoster(
-                item.selectFirst("img")?.let { img ->
-                    img.attr("data-src").ifEmpty { img.attr("src") }
-                }
-            )
-            newMovieSearchResponse(title, href, TvType.NSFW) {
+
+            var poster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (poster?.startsWith("//") == true) poster = "https:$poster"
+            if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
+
+            newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
             }
         }
@@ -206,19 +135,14 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        initSession()
-        val doc = app.get(
-            url,
-            headers = ua,
-            cookies = sessionCookies ?: emptyMap(),
-            interceptor = interceptor,
-            timeout = 120
-        ).document
+        val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - wowxxx.to", "", ignoreCase = true).trim()
+        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
-        if (poster == null) poster = doc.selectFirst(".player-container img")?.attr("src")
+        if (poster == null) {
+            poster = doc.selectFirst(".player-container img")?.attr("src")
+        }
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -230,12 +154,13 @@ class WowProvider : MainAPI() {
             val recTitle = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-            val recPoster = normalizePoster(
-                item.selectFirst("img")?.let { img ->
-                    img.attr("data-src").ifEmpty { img.attr("src") }
-                }
-            )
-            newMovieSearchResponse(recTitle, recHref, TvType.NSFW) {
+            var recPoster = item.selectFirst("img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+            if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
+            if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
+
+            newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
             }
         }
@@ -248,13 +173,18 @@ class WowProvider : MainAPI() {
 
         val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" }
 
-        return newMovieLoadResponse(title, url, TvType.NSFW, url) {
+        return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
             this.plot = plotText
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-            addTrailer(trailerUrl, referer = mainUrl, addRaw = true, headers = ua)
+            addTrailer(
+                trailerUrl,
+                referer = mainUrl,
+                addRaw = true,
+                headers = ua
+            )
         }
     }
 
@@ -266,18 +196,9 @@ class WowProvider : MainAPI() {
     ): Boolean {
         if (data.isBlank()) return false
         try {
-            initSession()
-            val html = app.get(
-                data,
-                headers = ua,
-                cookies = sessionCookies ?: emptyMap(),
-                interceptor = interceptor,
-                timeout = 120
-            ).text
-
+            val html = app.get(data, headers = ua, timeout = 60).text
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
-
             while (matcher.find()) {
                 var streamUrl = matcher.group(1) ?: continue
                 if (streamUrl.startsWith("//")) streamUrl = "https:$streamUrl"
@@ -288,19 +209,34 @@ class WowProvider : MainAPI() {
 
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
-                    val decodedName = String(Base64.getDecoder().decode("RnVjayBQdXNzeQ=="))
-                    qualityName = decodedName
+                    
+                    val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
+                    val decodedName = String(decodedBytes)
+                    
+                    qualityName = when (q) {
+                        1080 -> decodedName
+                        720 -> decodedName
+                        480 -> decodedName
+                        360 -> decodedName
+                        else -> decodedName
+                    }
+
                     qualityValue = when (q) {
                         1080 -> Qualities.P1080.value
-                        720  -> Qualities.P720.value
-                        480  -> Qualities.P480.value
-                        360  -> Qualities.P360.value
+                        720 -> Qualities.P720.value
+                        480 -> Qualities.P480.value
+                        360 -> Qualities.P360.value
                         else -> Qualities.Unknown.value
                     }
                 }
 
                 callback.invoke(
-                    newExtractorLink(this.name, qualityName, streamUrl, ExtractorLinkType.VIDEO) {
+                    newExtractorLink(
+                        this.name,
+                        qualityName,
+                        streamUrl,
+                        ExtractorLinkType.VIDEO
+                    ) {
                         quality = qualityValue
                     }
                 )
