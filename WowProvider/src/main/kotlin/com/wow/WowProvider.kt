@@ -1,11 +1,79 @@
 package com.wow
 
+import androidx.appcompat.app.AppCompatActivity
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
+import com.lagradost.cloudstream3.CloudStreamApp.Companion.getKey
 import java.util.regex.Pattern
 import java.util.Base64
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import okhttp3.Interceptor
+import okhttp3.Response
+import kotlin.coroutines.resume
 
+// ---------------------------------------------------------------------------
+// Cloudflare bypass OkHttp interceptor — injects saved cookies on every request
+// ---------------------------------------------------------------------------
+object WowCFBypassInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val original = chain.request()
+        val builder = original.newBuilder()
+            .removeHeader("X-Requested-With")
+            .header("sec-ch-ua-mobile", "?1")
+            .header("sec-ch-ua-platform", "\"Windows\"")
+
+        val savedUa = WowPlugin.cfUserAgent
+        if (savedUa.isNotEmpty()) {
+            builder.header("User-Agent", savedUa)
+        }
+
+        val savedCookies = WowPlugin.cfCookies
+        if (savedCookies.isNotEmpty()) {
+            val existingCookie = original.header("Cookie") ?: ""
+            val base = existingCookie.split(";").map { it.trim() }
+                .filter { it.isNotEmpty() && !it.startsWith("cf_clearance=") }
+            val fresh = savedCookies.split(";").map { it.trim() }.filter { it.isNotEmpty() }
+            builder.header("Cookie", (base + fresh).distinct().joinToString("; "))
+        }
+
+        return chain.proceed(builder.build())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Suspend helper — shows WebView dialog on the main thread and waits for result
+// ---------------------------------------------------------------------------
+suspend fun showWowCFBypassAndWait(url: String): Boolean =
+    withContext(Dispatchers.Main) {
+        suspendCancellableCoroutine { cont ->
+            val activity = CommonActivity.activity as? AppCompatActivity
+            if (activity == null || activity.isFinishing || activity.isDestroyed) {
+                cont.resume(false)
+                return@suspendCancellableCoroutine
+            }
+            var resumed = false
+            fun safeResume(success: Boolean) {
+                if (!resumed) { resumed = true; cont.resume(success) }
+            }
+            val dialog = WowCFWebViewDialog(
+                targetUrl = url,
+                onFinished = { success -> safeResume(success) }
+            )
+            cont.invokeOnCancellation {
+                activity.runOnUiThread { runCatching { dialog.dismissAllowingStateLoss() } }
+            }
+            dialog.show(activity.supportFragmentManager, "wow_cf_bypass_auto")
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// WowProvider
+// ---------------------------------------------------------------------------
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
     override var name = "Wow"
@@ -13,8 +81,82 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+    private val defaultUserAgent =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
+    private val ua get() = mapOf(
+        "User-Agent" to (WowPlugin.cfUserAgent.ifEmpty { defaultUserAgent }),
+        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language" to "en-US,en;q=0.5"
+    )
+
+    companion object {
+        // Mutex ensures only one WebView bypass runs at a time even with parallel requests
+        private val cfMutex = Mutex()
+
+        private val CF_BLOCKER_PHRASES = listOf(
+            "just a moment",
+            "checking your browser",
+            "ddos-guard",
+            "attention required",
+            "verify you are human",
+            "cloudflare"
+        )
+
+        fun isCloudflareBlocked(response: com.lagradost.nicehttp.NiceResponse): Boolean {
+            if (response.code == 403 || response.code == 503) return true
+            return CF_BLOCKER_PHRASES.any { response.text.lowercase().contains(it) }
+        }
+
+        fun isAutoBypassEnabled(): Boolean = getKey<Boolean>("wow_auto_bypass") ?: true
+
+        /**
+         * Drop-in replacement for [app.get] that transparently handles Cloudflare.
+         *
+         * Flow:
+         *  1. Attach saved cookies via interceptor and make the request.
+         *  2. If the response is blocked, enter [cfMutex].
+         *  3. Inside the lock, re-check once (another parallel request might have already solved it).
+         *  4. If still blocked, clear stale cookies and open the WebView **once**.
+         *  5. After a successful bypass, retry the original request with the fresh cookies.
+         *  6. All subsequent requests reuse the saved cookies — no WebView ever opens again
+         *     until the cookies expire and a new 403/503 is encountered.
+         */
+        suspend fun appGet(
+            url: String,
+            headers: Map<String, String> = emptyMap()
+        ): com.lagradost.nicehttp.NiceResponse {
+            var response = app.get(url, headers = headers, interceptor = WowCFBypassInterceptor)
+
+            if (isCloudflareBlocked(response) && isAutoBypassEnabled()) {
+                cfMutex.withLock {
+                    // Double-check: another coroutine may have already refreshed the cookies
+                    var innerResponse = app.get(url, headers = headers, interceptor = WowCFBypassInterceptor)
+
+                    if (isCloudflareBlocked(innerResponse)) {
+                        // Stale or missing cookies — wipe them and open the WebView exactly once
+                        WowPlugin.cfCookies = ""
+                        android.webkit.CookieManager.getInstance().apply {
+                            removeAllCookies(null)
+                            flush()
+                        }
+
+                        val success = showWowCFBypassAndWait("https://www.wowxxx.to")
+                        if (success) {
+                            innerResponse = app.get(url, headers = headers, interceptor = WowCFBypassInterceptor)
+                        }
+                    }
+                    response = innerResponse
+                }
+            }
+
+            return response
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Main page categories
+    // -----------------------------------------------------------------------
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
         "$mainUrl/top-rated/" to "Top Rated",
@@ -76,9 +218,12 @@ class WowProvider : MainAPI() {
         "$mainUrl/models/violet-myers/" to "Violet Myers"
     )
 
+    // -----------------------------------------------------------------------
+    // Pages
+    // -----------------------------------------------------------------------
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = appGet(url, headers = ua).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -86,7 +231,6 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
@@ -104,10 +248,14 @@ class WowProvider : MainAPI() {
         )
     }
 
+    // -----------------------------------------------------------------------
+    // Search
+    // -----------------------------------------------------------------------
     override suspend fun search(query: String, page: Int): SearchResponseList? {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
-        val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        val document = app.get(url, headers = ua, timeout = 60).document
+        val url = if (page == 1) "$mainUrl/search/$q/relevance/"
+                  else "$mainUrl/search/$q/relevance/$page/"
+        val document = appGet(url, headers = ua).document
 
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -115,7 +263,6 @@ class WowProvider : MainAPI() {
             val title = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
-
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
@@ -130,27 +277,27 @@ class WowProvider : MainAPI() {
         return newSearchResponseList(items, items.isNotEmpty())
     }
 
-    override suspend fun quickSearch(query: String): List<SearchResponse>? {
-        return search(query, 1)?.items?.take(5)
-    }
+    override suspend fun quickSearch(query: String): List<SearchResponse>? =
+        search(query, 1)?.items?.take(5)
 
+    // -----------------------------------------------------------------------
+    // Load detail page
+    // -----------------------------------------------------------------------
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = appGet(url, headers = ua).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
+        val title = doc.title().trim().replace(" - wowxxx.to", "", ignoreCase = true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
-        if (poster == null) {
-            poster = doc.selectFirst(".player-container img")?.attr("src")
-        }
+            ?: doc.selectFirst(".player-container img")?.attr("src")
 
-        val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
-        val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
-        val actors = doc.select("div.item:has(span:contains(Pornstars)) a.btn_model").map { it.text() }
+        val plot    = doc.selectFirst("meta[name=description]")?.attr("content")
+        val tags    = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
+        val actors  = doc.select("div.item:has(span:contains(Pornstars)) a.btn_model").map { it.text() }
 
         val recommendations = doc.select("div.item:has(a[href*=/videos/])").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
-            val recHref = a.attr("href")
+            val recHref  = a.attr("href")
             val recTitle = a.attr("title").trim().ifEmpty {
                 item.selectFirst(".title")?.text()?.trim() ?: "Unknown"
             }
@@ -175,19 +322,17 @@ class WowProvider : MainAPI() {
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
-            this.plot = plotText
-            this.tags = tags
-            this.actors = actors.map { ActorData(Actor(it)) }
+            this.plot      = plot
+            this.tags      = tags
+            this.actors    = actors.map { ActorData(Actor(it)) }
             this.recommendations = recommendations
-            addTrailer(
-                trailerUrl,
-                referer = mainUrl,
-                addRaw = true,
-                headers = ua
-            )
+            addTrailer(trailerUrl, referer = mainUrl, addRaw = true, headers = ua)
         }
     }
 
+    // -----------------------------------------------------------------------
+    // Extract stream links
+    // -----------------------------------------------------------------------
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -195,37 +340,25 @@ class WowProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         if (data.isBlank()) return false
-        try {
-            val html = app.get(data, headers = ua, timeout = 60).text
+        return try {
+            val html = appGet(data, headers = ua).text
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
+
             while (matcher.find()) {
                 var streamUrl = matcher.group(1) ?: continue
                 if (streamUrl.startsWith("//")) streamUrl = "https:$streamUrl"
 
                 val qualityMatch = Regex("(\\d{3,4})[mp]?\\.mp4").find(streamUrl)
                 var qualityValue = Qualities.Unknown.value
-                var qualityName = "Direct Stream"
+                val qualityName = "Direct Stream"
 
                 if (qualityMatch != null) {
-                    val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
-                    
-                    val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
-                    val decodedName = String(decodedBytes)
-                    
-                    qualityName = when (q) {
-                        1080 -> decodedName
-                        720 -> decodedName
-                        480 -> decodedName
-                        360 -> decodedName
-                        else -> decodedName
-                    }
-
-                    qualityValue = when (q) {
+                    qualityValue = when (qualityMatch.groupValues[1].toIntOrNull() ?: 0) {
                         1080 -> Qualities.P1080.value
-                        720 -> Qualities.P720.value
-                        480 -> Qualities.P480.value
-                        360 -> Qualities.P360.value
+                        720  -> Qualities.P720.value
+                        480  -> Qualities.P480.value
+                        360  -> Qualities.P360.value
                         else -> Qualities.Unknown.value
                     }
                 }
@@ -238,14 +371,15 @@ class WowProvider : MainAPI() {
                         ExtractorLinkType.VIDEO
                     ) {
                         quality = qualityValue
+                        referer = mainUrl
                     }
                 )
                 found = true
             }
-            return found
+            found
         } catch (e: Exception) {
             e.printStackTrace()
+            false
         }
-        return false
     }
 }
