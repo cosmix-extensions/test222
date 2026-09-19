@@ -13,14 +13,7 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    // Changed to Android Mobile User-Agent to avoid Cloudflare fingerprint mismatch
-        private val ua = mapOf(
-        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language" to "en-US,en;q=0.9",
-        "Connection" to "keep-alive",
-        "Upgrade-Insecure-Requests" to "1"
-    )
+    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
