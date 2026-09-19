@@ -2,7 +2,6 @@ package com.wow
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
-import com.lagradost.cloudstream3.network.WebViewResolver
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 import java.util.Base64
@@ -79,13 +78,7 @@ class WowProvider : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
-        
-        val doc = app.get(
-            url, 
-            headers = ua, 
-            timeout = 60,
-            interceptor = WebViewResolver(Regex("""/videos/"""))
-        ).document
+        val doc = app.get(url, headers = ua, timeout = 60).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -114,13 +107,7 @@ class WowProvider : MainAPI() {
     override suspend fun search(query: String, page: Int): SearchResponseList? {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        
-        val document = app.get(
-            url, 
-            headers = ua, 
-            timeout = 60,
-            interceptor = WebViewResolver(Regex("""/videos/"""))
-        ).document
+        val document = app.get(url, headers = ua, timeout = 60).document
 
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -148,13 +135,7 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(
-            url, 
-            headers = ua, 
-            timeout = 60,
-            interceptor = WebViewResolver(Regex("""player-container|video-id"""))
-        ).document
-        
+        val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
         val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
 
