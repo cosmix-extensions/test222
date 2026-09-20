@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 import java.util.Base64
 
-class WowProvider : MainAPI() {
+class FreePornProvider : MainAPI() {
     override var mainUrl = "https://www.freepornvideos.xxx"
     override var name = "Free Porn"
     override var lang = "en"
