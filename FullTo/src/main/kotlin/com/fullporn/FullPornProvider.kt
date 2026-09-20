@@ -144,8 +144,11 @@ class FullPornProvider : MainAPI() {
         val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
         
-        // Extract and format the title, removing 'fullporn.to'
-        val title = doc.title().trim().replace(" - fullporn.to", "", true).trim()
+        // Extract and format the title, removing 'fullporn.to' and everything after '😮'
+        val title = doc.title().trim()
+            .replace(" - fullporn.to", "", true)
+            .substringBefore("😮")
+            .trim()
 
         // Extract poster image
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
