@@ -1,5 +1,28 @@
 [
     {
+        "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FreeVideos.cs3",
+        "status": 1,
+        "version": 2,
+        "name": "FreeVideos",
+        "internalName": "FreeVideos",
+        "authors": [
+            "Cloudstream Extension"
+        ],
+        "description": "Only NSFW Movies Avalibale",
+        "fileSize": 17660,
+        "repositoryUrl": "https://github.com/cosmix-extensions/test222",
+        "language": "en",
+        "tvTypes": [
+            "Movie"
+        ],
+        "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.freepornvideos.xxx/&size=128",
+        "apiVersion": 1,
+        "fileHash": "sha256-9f16f53fe4a263b3531e143e9b4e80b723cf4dee37e7be33e4d7d4156530de5d",
+        "jarFileSize": 59377,
+        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FreeVideos.jar",
+        "jarHash": "sha256-44657ddd237919288b522388c221f36d71aaf6e132011e79860c0c66b8242070"
+    },
+    {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.cs3",
         "status": 1,
         "version": 9,
