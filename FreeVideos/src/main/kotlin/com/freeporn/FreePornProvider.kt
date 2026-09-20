@@ -13,8 +13,10 @@ class FreePornProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
+    // Setup headers to mimic a real browser request
     private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
+    // Define main page categories and their endpoints
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
         "$mainUrl/top-rated/" to "Top Rated",
@@ -80,6 +82,7 @@ class FreePornProvider : MainAPI() {
         val url = if (page == 1) request.data else "${request.data}$page/"
         val doc = app.get(url, headers = ua, timeout = 60).document
 
+        // Parse items from the HTML document
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
             val href = a.attr("href")
@@ -90,6 +93,8 @@ class FreePornProvider : MainAPI() {
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
+            
+            // Format poster URLs properly
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
@@ -105,10 +110,12 @@ class FreePornProvider : MainAPI() {
     }
 
     override suspend fun search(query: String, page: Int): SearchResponseList? {
+        // Encode the search query to fit the URL structure
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
         val document = app.get(url, headers = ua, timeout = 60).document
 
+        // Parse search results
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
             val href = a.attr("href")
@@ -119,6 +126,7 @@ class FreePornProvider : MainAPI() {
             var poster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
+            
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
@@ -131,23 +139,33 @@ class FreePornProvider : MainAPI() {
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse>? {
+        // Return only the top 5 results for quick search
         return search(query, 1)?.items?.take(5)
     }
 
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - wowxxx.to", "", true).trim()
+        
+        // Extract and format the title, removing 'wowxxx.to' and everything after '⭐️'
+        val title = doc.title()
+            .trim()
+            .replace(" - wowxxx.to", "", true)
+            .substringBefore("⭐️")
+            .trim()
 
+        // Extract poster image
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         if (poster == null) {
             poster = doc.selectFirst(".player-container img")?.attr("src")
         }
 
+        // Extract details like plot, tags, and actors
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
         val actors = doc.select("div.item:has(span:contains(Pornstars)) a.btn_model").map { it.text() }
 
+        // Fetch recommendations from the bottom of the page
         val recommendations = doc.select("div.item:has(a[href*=/videos/])").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
             val recHref = a.attr("href")
@@ -157,6 +175,7 @@ class FreePornProvider : MainAPI() {
             var recPoster = item.selectFirst("img")?.let { img ->
                 img.attr("data-src").ifEmpty { img.attr("src") }
             }
+            
             if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
             if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
 
@@ -165,6 +184,7 @@ class FreePornProvider : MainAPI() {
             }
         }
 
+        // Try multiple methods to find the unique video ID for the trailer
         val videoId = doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
             ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
@@ -197,12 +217,16 @@ class FreePornProvider : MainAPI() {
         if (data.isBlank()) return false
         try {
             val html = app.get(data, headers = ua, timeout = 60).text
+            
+            // Look for MP4 video sources in the page source
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
+            
             while (matcher.find()) {
                 var streamUrl = matcher.group(1) ?: continue
                 if (streamUrl.startsWith("//")) streamUrl = "https:$streamUrl"
 
+                // Determine video quality from the URL
                 val qualityMatch = Regex("(\\d{3,4})[mp]?\\.mp4").find(streamUrl)
                 var qualityValue = Qualities.Unknown.value
                 var qualityName = "Direct Stream"
@@ -210,6 +234,7 @@ class FreePornProvider : MainAPI() {
                 if (qualityMatch != null) {
                     val q = qualityMatch.groupValues[1].toIntOrNull() ?: 0
                     
+                    // Decode a specific string for quality naming
                     val decodedBytes = Base64.getDecoder().decode("RnVjayBQdXNzeQ==")
                     val decodedName = String(decodedBytes)
                     
@@ -230,6 +255,7 @@ class FreePornProvider : MainAPI() {
                     }
                 }
 
+                // Add the extracted video link to the callback
                 callback.invoke(
                     newExtractorLink(
                         this.name,
