@@ -30,6 +30,7 @@ jobs:
           ./gradlew WowProvider:make
           ./gradlew WowUncutProvider:make
           ./gradlew onetv:make
+          ./gradlew FreeVideos:make
           ./gradlew makePluginsJson
           mkdir -p build_output
           cp HamsterProvider/build/*.cs3 build_output/ || true
@@ -37,6 +38,7 @@ jobs:
           cp WowProvider/build/*.cs3 build_output/ || true
           cp WowUncutProvider/build/*.cs3 build_output/ || true
           cp onetv/build/*.cs3 build_output/ || true
+          cp FreeVideos/build/*.cs3 build_output/ || true
           cp build/plugins.json build_output/plugins.json
           echo '{
             "name": "NSFW Providers",
