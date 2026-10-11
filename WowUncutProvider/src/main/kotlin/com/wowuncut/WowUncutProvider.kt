@@ -14,13 +14,13 @@ class WowUncutProvider : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$mainUrl/tag/niksindian-porn-videos-download?filter=latest" to "🔥 NiksIndian",
+        "$mainUrl/" to "Latest",
         "$mainUrl/category/hindi-web-series/" to "Hindi Web Series",
         "$mainUrl/category/bengali-web-series/" to "Bengali Web Series",
         "$mainUrl/category/tamil-web-series/" to "Tamil Web Series",
         "$mainUrl/category/telugu-web-series/" to "Telugu Web Series",
         "$mainUrl/category/hindi-short-film/" to "Hindi Short Films",
         "$mainUrl/category/unrated-web-series/" to "Unrated Web Series",
-        "$mainUrl/" to "Latest",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
