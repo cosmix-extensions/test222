@@ -55,7 +55,7 @@
             "Cloudstream Extension"
         ],
         "description": "xHamster - Free Porn Videos & XXX Movies",
-        "fileSize": 13351,
+        "fileSize": 13416,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -63,10 +63,10 @@
         ],
         "iconUrl": "https://static-ah.xhcdn.com/xh-desktop/images/favicon/favicon-v2-128x128.png",
         "apiVersion": 1,
-        "fileHash": "sha256-979e9353895098c3f93e3cabcbfd0088416860b8c147eb9f78102c0191d15026",
-        "jarFileSize": 41851,
+        "fileHash": "sha256-8460612b94bdcc64d0cb22edb4618b52650766bbe9a890774bd69b2fb66279f1",
+        "jarFileSize": 41937,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.jar",
-        "jarHash": "sha256-eb5b77b06301268d82471fc78df24a1df436ab54833acc22acdccc0d8bac1991"
+        "jarHash": "sha256-10b3dd83f23d86c2afd9ea14f9a4a1bd2e1ae50bdd3e1e3b63ef7e6743f39b72"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
