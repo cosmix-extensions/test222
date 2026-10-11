@@ -10,7 +10,7 @@ class HamsterProvider : MainAPI() {
     override var name = "Hamster"
     override var lang = "en"
     override val hasMainPage = true
-    override val supportedTypes = setOf(TvType.Movie)
+    override val supportedTypes = setOf(TvType.Others)
 
     private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     private val mapper = jacksonObjectMapper()
@@ -52,7 +52,8 @@ class HamsterProvider : MainAPI() {
         }
         val html = app.get(url, headers = ua).text
         val videos = extractVideosFromInitials(html)
-        return newHomePageResponse(request.name, videos)
+        // isHorizontalImages = true -> landscape cards instead of tall posters
+        return newHomePageResponse(HomePageList(request.name, videos, isHorizontalImages = true), true)
     }
 
     override suspend fun search(query: String, page: Int): SearchResponseList? {
@@ -84,7 +85,7 @@ class HamsterProvider : MainAPI() {
                             val poster = videoNode.get("thumbURL")?.asText() ?: videoNode.get("imageURL")?.asText()
                             
                             list.add(
-                                newMovieSearchResponse(title, url, TvType.Movie) {
+                                newMovieSearchResponse(title, url, TvType.Others) {
                                     this.posterUrl = poster
                                 }
                             )
@@ -128,7 +129,7 @@ class HamsterProvider : MainAPI() {
             } catch (e: Exception) { }
         }
 
-        return newMovieLoadResponse(title, url, TvType.Movie, url) {
+        return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
             this.plot = description
         }
@@ -203,4 +204,3 @@ class HamsterProvider : MainAPI() {
         return false
     }
 }
-
