@@ -8,7 +8,7 @@ class WowUncutProvider : MainAPI() {
     override var name = "WowUncut"
     override var lang = "hi"
     override val hasMainPage = true
-    override val supportedTypes = setOf(TvType.TvSeries, TvType.Movie, TvType.Others)
+    override val supportedTypes = setOf(TvType.Others)
 
     private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
@@ -38,10 +38,11 @@ class WowUncutProvider : MainAPI() {
             val title = (el.selectFirst("h2, h3, .entry-title")?.text() ?: a.attr("title")).trim().ifBlank { return@mapNotNull null }
             val poster = el.selectFirst("img")?.let { it.attr("data-src").ifBlank { it.attr("src") } }
             val isSeries = title.contains("series", true) || title.contains("episode", true)
-            if (isSeries) newTvSeriesSearchResponse(title, href, TvType.TvSeries) { posterUrl = poster }
-            else newMovieSearchResponse(title, href, TvType.Movie) { posterUrl = poster }
+            if (isSeries) newTvSeriesSearchResponse(title, href, TvType.Others) { posterUrl = poster }
+            else newMovieSearchResponse(title, href, TvType.Others) { posterUrl = poster }
         }
-        return newHomePageResponse(request.name, items, page < 12)
+        // isHorizontalImages = true -> landscape cards instead of tall posters
+        return newHomePageResponse(HomePageList(request.name, items, isHorizontalImages = true), page < 12)
     }
 
     override suspend fun search(query: String, page: Int): SearchResponseList? {
@@ -53,8 +54,8 @@ class WowUncutProvider : MainAPI() {
             val title = (el.selectFirst("h2, h3")?.text() ?: a.attr("title")).trim().ifBlank { return@mapNotNull null }
             val poster = el.selectFirst("img")?.let { it.attr("data-src").ifBlank { it.attr("src") } }
             val isSeries = title.contains("series", true) || title.contains("episode", true)
-            if (isSeries) newTvSeriesSearchResponse(title, href, TvType.TvSeries) { posterUrl = poster }
-            else newMovieSearchResponse(title, href, TvType.Movie) { posterUrl = poster }
+            if (isSeries) newTvSeriesSearchResponse(title, href, TvType.Others) { posterUrl = poster }
+            else newMovieSearchResponse(title, href, TvType.Others) { posterUrl = poster }
         }
         return newSearchResponseList(items, items.isNotEmpty())
     }
@@ -68,9 +69,9 @@ class WowUncutProvider : MainAPI() {
         val isSeries = title.contains("episode", true) || url.contains("episode", true)
         return if (isSeries && videoUrl.isNotBlank()) {
             val epNum = Regex("""episode[-\s]?(\d+)""", RegexOption.IGNORE_CASE).find(title + url)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, listOf(newEpisode(videoUrl) { name = "Episode $epNum"; episode = epNum; season = 1; this.posterUrl = poster })) { this.posterUrl = poster; this.plot = description }
+            newTvSeriesLoadResponse(title, url, TvType.Others, listOf(newEpisode(videoUrl) { name = "Episode $epNum"; episode = epNum; season = 1; this.posterUrl = poster })) { this.posterUrl = poster; this.plot = description }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, videoUrl) { this.posterUrl = poster; this.plot = description }
+            newMovieLoadResponse(title, url, TvType.Others, videoUrl) { this.posterUrl = poster; this.plot = description }
         }
     }
 
@@ -81,4 +82,3 @@ class WowUncutProvider : MainAPI() {
         return true
     }
 }
-
