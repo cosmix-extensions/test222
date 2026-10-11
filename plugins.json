@@ -148,7 +148,7 @@
             "Cloudstream Extension"
         ],
         "description": "WowUncut - Hindi, Bengali, Tamil & More Web Series",
-        "fileSize": 12761,
+        "fileSize": 12712,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "hi",
         "tvTypes": [
@@ -158,9 +158,9 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://wowuncut.com/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-750189027e7873161eccb968aa276dfba69dccbe6dc699bf8c72864491a1f8d4",
-        "jarFileSize": 46074,
+        "fileHash": "sha256-7607f93556516479c63637bedb385db4a9594d5fa3f82c630feb4468062fb8fc",
+        "jarFileSize": 46118,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.jar",
-        "jarHash": "sha256-cea332aff2ddb91d3b06d08a0562909cfa776db69fde00f1c7f283cd755a7f1a"
+        "jarHash": "sha256-1423122f9020bc4c98bf7549df531291e843c22c95085691f9046d7be83af02a"
     }
 ]
