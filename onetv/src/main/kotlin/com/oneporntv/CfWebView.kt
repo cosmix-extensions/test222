@@ -145,7 +145,7 @@ class CfWebViewDialog(
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var webView: WebView
     private lateinit var urlText: TextView
-    private lateinit var progress: ProgressBar
+    private lateinit var progressBar: ProgressBar
     private var saved = false
     private var progressNow = 0
     private var loadedSince = 0L
@@ -193,11 +193,11 @@ class CfWebViewDialog(
         bar.addView(iconButton(DotsIcon()) { showMenu(it) }, LinearLayout.LayoutParams(dp(50), dp(50)))
         root.addView(bar)
 
-        progress = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
+        progressBar = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
             progressDrawable?.setTint(Color.parseColor("#4F8CFF"))
         }
-        root.addView(progress, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(3)))
+        root.addView(progressBar, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(3)))
 
         webView = WebView(context).apply {
             settings.javaScriptEnabled = true
@@ -210,8 +210,8 @@ class CfWebViewDialog(
             webChromeClient = object : WebChromeClient() {
                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
                     progressNow = newProgress
-                    progress.progress = newProgress
-                    progress.visibility = if (newProgress >= 100) View.INVISIBLE else View.VISIBLE
+                    progressBar.progress = newProgress
+                    progressBar.visibility = if (newProgress >= 100) View.INVISIBLE else View.VISIBLE
                     if (newProgress >= 100 && loadedSince == 0L) loadedSince = System.currentTimeMillis()
                     if (newProgress < 100) loadedSince = 0L
                 }
