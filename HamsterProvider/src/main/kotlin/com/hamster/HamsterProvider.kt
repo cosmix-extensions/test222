@@ -4,6 +4,9 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import org.jsoup.Jsoup
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class HamsterProvider : MainAPI() {
     override var mainUrl = "https://xhamster.com"
@@ -108,6 +111,16 @@ class HamsterProvider : MainAPI() {
         return list.distinctBy { it.url }
     }
 
+    private fun parseThumbs(arr: com.fasterxml.jackson.databind.JsonNode): List<SearchResponse> {
+        if (!arr.isArray) return emptyList()
+        return arr.mapNotNull { v ->
+            val title = v.get("title")?.asText() ?: return@mapNotNull null
+            val href = v.get("pageURL")?.asText() ?: return@mapNotNull null
+            val poster = v.get("thumbURL")?.asText() ?: v.get("imageURL")?.asText()
+            newMovieSearchResponse(title, href, TvType.Others) { this.posterUrl = poster }
+        }
+    }
+
     override suspend fun load(url: String): LoadResponse {
         val html = app.get(url, headers = ua).text
         val regex = Regex("""window\.initials=(\{.*?\});?</script>""")
@@ -116,10 +129,39 @@ class HamsterProvider : MainAPI() {
         var title = "Unknown Title"
         var poster: String? = null
         var description: String? = null
+        val recommendations = mutableListOf<SearchResponse>()
 
         if (match != null) {
             try {
                 val root = mapper.readTree(match.groupValues[1])
+                // Related videos: first page from the page itself, the rest ("Show more related videos")
+                // from /api/front/video/related, pages 2..maxPages, fetched in parallel.
+                try {
+                    val related = root.get("relatedVideosComponent")
+                    val tab = related?.get("videoTabInitialData")
+                    tab?.get("videoListProps")?.get("videoThumbProps")?.let { recommendations += parseThumbs(it) }
+                    val videoId = related?.get("videoId")?.asText()
+                        ?: root.get("videoModel")?.get("id")?.asText()
+                    val maxPages = (tab?.get("maxPages")?.asInt() ?: 7).coerceIn(1, 15)
+                    if (!videoId.isNullOrBlank() && maxPages > 1) {
+                        val params = java.net.URLEncoder.encode("""{"tabType":"video","isDesktop":true}""", "UTF-8")
+                        val pages = coroutineScope {
+                            (2..maxPages).map { p ->
+                                async {
+                                    try {
+                                        val json = app.get(
+                                            "$mainUrl/api/front/video/related?videoId=$videoId&page=$p&params=$params",
+                                            headers = ua + mapOf("Referer" to url, "Accept" to "application/json"),
+                                            timeout = 30
+                                        ).text
+                                        mapper.readTree(json).get("videoThumbProps")?.let { parseThumbs(it) } ?: emptyList()
+                                    } catch (e: Throwable) { emptyList<SearchResponse>() }
+                                }
+                            }.awaitAll()
+                        }
+                        pages.forEach { recommendations += it }
+                    }
+                } catch (e: Throwable) { }
                 val videoModel = root.get("videoModel")
                 if (videoModel != null) {
                     title = videoModel.get("title")?.asText() ?: title
@@ -132,6 +174,7 @@ class HamsterProvider : MainAPI() {
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
             this.plot = description
+            this.recommendations = recommendations.distinctBy { it.url }.filter { it.url != url }
         }
     }
 

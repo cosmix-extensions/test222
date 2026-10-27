@@ -1,4 +1,4 @@
-version = 10
+version = 11
 
 cloudstream {
     setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/recloudstream/cloudstream-extensions")
