@@ -185,6 +185,7 @@ class CfWebViewDialog(
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
+            gravity = Gravity.CENTER
             text = prettyUrl(startUrl)
         }
         bar.addView(urlText, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
@@ -282,7 +283,8 @@ class CfWebViewDialog(
 
     private fun currentUrl() = webView.url ?: startUrl
 
-    private fun prettyUrl(u: String) = u.substringAfter("://").removePrefix("www.").trimEnd('/')
+    /** Domain only (no scheme, www or path), shown in the middle of the bar. */
+    private fun prettyUrl(u: String) = (Uri.parse(u).host ?: u.substringAfter("://").substringBefore("/")).removePrefix("www.")
 
     private fun showMenu(anchor: View) {
         val box = LinearLayout(context).apply {
@@ -349,10 +351,13 @@ abstract class LineIcon(stroke: Float) : Drawable() {
     override fun getOpacity() = PixelFormat.TRANSLUCENT
 }
 
-class ChevronIcon(stroke: Float) : LineIcon(stroke * 1.2f) {
+class ChevronIcon(stroke: Float) : LineIcon(stroke * 1.25f) {
+    // "≺"-style back arrow: curved upper stroke, straight lower stroke
     override fun draw(canvas: Canvas) {
         canvas.drawPath(Path().apply {
-            moveTo(x(0.62f), y(0.22f)); lineTo(x(0.36f), y(0.5f)); lineTo(x(0.62f), y(0.78f))
+            moveTo(x(0.64f), y(0.2f))
+            quadTo(x(0.58f), y(0.42f), x(0.34f), y(0.5f))
+            lineTo(x(0.64f), y(0.8f))
         }, paint)
     }
 }
