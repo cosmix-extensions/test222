@@ -189,10 +189,19 @@ class OnePornTvProvider : MainAPI() {
         val html = doc.html()
         val title = doc.title().trim().replace(" - $domain", "", true).trim()
 
-        var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
-        if (poster == null) {
-            poster = doc.selectFirst(".player-container img")?.attr("src")
+        // 1) Main/search page poster from cache: same URL, so the image loader reuses its cached copy (no second download).
+        // 2) og:image  3) .player-container img
+        var poster: String? = posterCache[key(url)]
+        if (poster.isNullOrBlank()) {
+            poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         }
+        if (poster.isNullOrBlank()) {
+            poster = doc.selectFirst(".player-container img")?.let { img ->
+                img.attr("data-src").ifEmpty { img.attr("src") }
+            }
+        }
+        if (poster?.startsWith("//") == true) poster = "https:$poster"
+        if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -224,9 +233,6 @@ class OnePornTvProvider : MainAPI() {
             ?: Regex("img\\." + Regex.escape(domain) + "/\\d+/(\\d+)/").find(html)?.groupValues?.get(1)
 
         val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
-
-        // The page's own poster as before; the home list image only if the page has none.
-        if (poster.isNullOrBlank()) poster = posterCache[key(url)]
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
