@@ -1,4 +1,4 @@
-package com.oneporntv
+package com.oneporntv.settings
 
 import android.app.Activity
 import android.app.Dialog

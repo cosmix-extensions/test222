@@ -1,4 +1,4 @@
-package com.oneporntv
+package com.oneporntv.settings
 
 import android.annotation.SuppressLint
 import android.app.Activity

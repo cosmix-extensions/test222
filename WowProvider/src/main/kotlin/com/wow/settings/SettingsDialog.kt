@@ -1,4 +1,4 @@
-package com.wow
+package com.wow.settings
 
 import android.app.Activity
 import android.app.Dialog

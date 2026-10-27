@@ -6,6 +6,8 @@ import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 import java.util.Base64
 import com.lagradost.nicehttp.NiceResponse
+import com.oneporntv.settings.CfBypass
+import com.oneporntv.settings.CfStore
 
 class OnePornTvProvider : MainAPI() {
     override var mainUrl = "https://www.1porn.tv"
@@ -27,6 +29,10 @@ class OnePornTvProvider : MainAPI() {
             if (c.isNotBlank()) h["Cookie"] = c
             return h
         }
+
+    /** Headers for poster images: same UA + Cloudflare cookies + referer. */
+    private val imgHeaders: Map<String, String>
+        get() = ua + ("Referer" to "$mainUrl/")
 
     /**
      * GET with the saved cookies. Only the home page may open the WebView (once per session, see CfBypass);
@@ -121,6 +127,7 @@ class OnePornTvProvider : MainAPI() {
 
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
+                this.posterHeaders = imgHeaders
             }
         }
 
@@ -150,6 +157,7 @@ class OnePornTvProvider : MainAPI() {
 
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
+                this.posterHeaders = imgHeaders
             }
         }
 
@@ -188,6 +196,7 @@ class OnePornTvProvider : MainAPI() {
 
             newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
+                this.posterHeaders = imgHeaders
             }
         }
 
@@ -201,6 +210,7 @@ class OnePornTvProvider : MainAPI() {
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
+            this.posterHeaders = imgHeaders
             this.plot = plotText
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
