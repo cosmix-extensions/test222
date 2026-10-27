@@ -8,7 +8,6 @@ import java.util.Base64
 import com.lagradost.nicehttp.NiceResponse
 import com.wow.settings.CfBypass
 import com.wow.settings.CfStore
-import com.wow.settings.DebugLog
 
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
@@ -147,7 +146,6 @@ class WowProvider : MainAPI() {
             }
         }
 
-        DebugLog.d("HOME", "${request.name} p$page: ${items.size} items, ${items.count { it.posterUrl.isNullOrBlank() }} without poster")
         return newHomePageResponse(
             HomePageList(request.name, items, isHorizontalImages = true),
             items.isNotEmpty()
@@ -195,9 +193,6 @@ class WowProvider : MainAPI() {
         if (poster == null) {
             poster = doc.selectFirst(".player-container img")?.attr("src")
         }
-        DebugLog.d("LOAD", "url=$url")
-        DebugLog.d("LOAD", "title=$title")
-        DebugLog.d("LOAD", "og:image=${doc.selectFirst("meta[property=og:image]")?.attr("content")} | player img=${doc.selectFirst(".player-container img")?.attr("src")} | cache=${posterCache[key(url)]}")
 
         val plotText = doc.selectFirst("meta[name=description]")?.attr("content")
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
@@ -232,12 +227,12 @@ class WowProvider : MainAPI() {
 
         // The page's own poster as before; the home list image only if the page has none.
         if (poster.isNullOrBlank()) poster = posterCache[key(url)]
-        DebugLog.d("LOAD", "final poster=$poster")
-        DebugLog.d("LOAD", "posterHeaders: ${DebugLog.describe(liveImgHeaders)}")
-        DebugLog.addPoster(poster, liveImgHeaders)
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
+            // Home preview card uses backgroundPosterUrl first: a distinct URL so it doesn't share
+            // the same request/cache key as the home row thumbnail being loaded at the same time.
+            this.backgroundPosterUrl = poster?.let { if (it.contains("?")) "$it&hero" else "$it?hero" }
             this.posterHeaders = liveImgHeaders
             this.plot = plotText
             this.tags = tags
