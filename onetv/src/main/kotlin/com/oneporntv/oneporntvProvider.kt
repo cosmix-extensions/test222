@@ -44,6 +44,10 @@ class OnePornTvProvider : MainAPI() {
     }
     private val liveImgHeaders: Map<String, String> = LiveImgHeaders()
 
+    /** Poster URL from the home/search lists, keyed by video page, so load() (and the home preview) uses the same image. */
+    private val posterCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+    private fun key(u: String) = u.substringAfter("://").removePrefix("www.").trimEnd('/')
+
     /**
      * GET with the saved cookies. Only the home page may open the WebView (once per session, see CfBypass);
      * everything else just reuses the cookies it saved.
@@ -135,6 +139,7 @@ class OnePornTvProvider : MainAPI() {
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
+            if (!poster.isNullOrBlank()) posterCache[key(href)] = poster
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
                 this.posterHeaders = liveImgHeaders
@@ -165,6 +170,7 @@ class OnePornTvProvider : MainAPI() {
             if (poster?.startsWith("//") == true) poster = "https:$poster"
             if (poster?.startsWith("/") == true) poster = "$mainUrl$poster"
 
+            if (!poster.isNullOrBlank()) posterCache[key(href)] = poster
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
                 this.posterHeaders = liveImgHeaders
@@ -204,6 +210,7 @@ class OnePornTvProvider : MainAPI() {
             if (recPoster?.startsWith("//") == true) recPoster = "https:$recPoster"
             if (recPoster?.startsWith("/") == true) recPoster = "$mainUrl$recPoster"
 
+            if (!recPoster.isNullOrBlank()) posterCache.putIfAbsent(key(recHref), recPoster)
             newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
                 this.posterHeaders = liveImgHeaders
@@ -220,7 +227,8 @@ class OnePornTvProvider : MainAPI() {
 
         // The page has no og:image, so build the poster from the same img CDN the list thumbnails use.
         val cdnPoster = videoId?.toLongOrNull()?.let { "https://img.$domain/${it / 1000 * 1000}/$it/medium@2x/1.jpg" }
-        if (cdnPoster != null) poster = cdnPoster
+        // Same image the home list showed for this video (the page itself has no og:image).
+        poster = posterCache[key(url)] ?: cdnPoster ?: poster
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
