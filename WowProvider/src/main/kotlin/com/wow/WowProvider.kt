@@ -228,11 +228,22 @@ class WowProvider : MainAPI() {
         // The page's own poster as before; the home list image only if the page has none.
         if (poster.isNullOrBlank()) poster = posterCache[key(url)]
 
+        // Download the poster once with the cookies and embed it, so the home card needs no headers.
+        val heroPoster = poster?.takeIf { it.startsWith("http") }?.let { p ->
+            try {
+                val r = app.get(p, headers = imgHeaders, timeout = 20)
+                val type = r.headers["Content-Type"]?.substringBefore(";")?.trim()
+                if (r.code == 200 && type?.startsWith("image/") == true) {
+                    "data:$type;base64," + android.util.Base64.encodeToString(r.body.bytes(), android.util.Base64.NO_WRAP)
+                } else null
+            } catch (_: Throwable) { null }
+        }
+
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
-            // Home preview card uses backgroundPosterUrl first: a distinct URL so it doesn't share
-            // the same request/cache key as the home row thumbnail being loaded at the same time.
-            this.backgroundPosterUrl = poster?.let { if (it.contains("?")) "$it&hero" else "$it?hero" }
+            // Home preview card (Cloudstream 4.8 stable) loads backgroundPosterUrl ?: posterUrl WITHOUT
+            // posterHeaders, so the cookie-protected image fails. Give it the image as a data: URI instead.
+            this.backgroundPosterUrl = heroPoster
             this.posterHeaders = liveImgHeaders
             this.plot = plotText
             this.tags = tags
