@@ -35,6 +35,16 @@ class WowProvider : MainAPI() {
         get() = ua + ("Referer" to "$mainUrl/")
 
     /**
+     * Poster headers that are read when the image is actually requested, not when load() ran,
+     * so posters (incl. the home preview card) always use the newest WebView cookies.
+     */
+    private inner class LiveImgHeaders : AbstractMap<String, String>() {
+        override val entries: Set<Map.Entry<String, String>>
+            get() = imgHeaders.entries
+    }
+    private val liveImgHeaders: Map<String, String> = LiveImgHeaders()
+
+    /**
      * GET with the saved cookies. Only the home page may open the WebView (once per session, see CfBypass);
      * everything else just reuses the cookies it saved.
      */
@@ -127,7 +137,7 @@ class WowProvider : MainAPI() {
 
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
-                this.posterHeaders = imgHeaders
+                this.posterHeaders = liveImgHeaders
             }
         }
 
@@ -157,7 +167,7 @@ class WowProvider : MainAPI() {
 
             newMovieSearchResponse(title, href, TvType.Others) {
                 this.posterUrl = poster
-                this.posterHeaders = imgHeaders
+                this.posterHeaders = liveImgHeaders
             }
         }
 
@@ -196,7 +206,7 @@ class WowProvider : MainAPI() {
 
             newMovieSearchResponse(recTitle, recHref, TvType.Others) {
                 this.posterUrl = recPoster
-                this.posterHeaders = imgHeaders
+                this.posterHeaders = liveImgHeaders
             }
         }
 
@@ -210,7 +220,7 @@ class WowProvider : MainAPI() {
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
-            this.posterHeaders = imgHeaders
+            this.posterHeaders = liveImgHeaders
             this.plot = plotText
             this.tags = tags
             this.actors = actors.map { ActorData(Actor(it)) }
