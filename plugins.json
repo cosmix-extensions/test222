@@ -71,14 +71,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
         "status": 1,
-        "version": 11,
+        "version": 12,
         "name": "onetv",
         "internalName": "onetv",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Avalibale",
-        "fileSize": 43259,
+        "fileSize": 43283,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -86,7 +86,7 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-0bcfabbea39ab006b834925d1d9f8021e5189e73c6adb8bf071f06acdf4eb163"
+        "fileHash": "sha256-3a78ab84622bb12cf0b6401fb5456ccf7b961caef1a6ba9688043e9481c59e13"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.cs3",
@@ -114,14 +114,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.cs3",
         "status": 1,
-        "version": 14,
+        "version": 15,
         "name": "WowProvider",
         "internalName": "WowProvider",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Avalibale",
-        "fileSize": 43182,
+        "fileSize": 43206,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -129,7 +129,7 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-834f4e773a7437e33e022712221ca21b7ac0cc4af28817982dc652393c22e908"
+        "fileHash": "sha256-cce626574a4ab2aac0b14275d98038ba98f480774cc044a11389be14fa2306ed"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
