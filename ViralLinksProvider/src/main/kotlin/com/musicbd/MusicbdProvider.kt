@@ -11,7 +11,7 @@ class MusicbdProvider : MainAPI() {
     override var name = "Musicbd25"
     override var lang = "en"
     override val hasMainPage = true
-    override val supportedTypes = setOf(TvType.Movie)
+    override val supportedTypes = setOf(TvType.Others)
 
     private val defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     private val ua = mapOf("User-Agent" to defaultUserAgent)
@@ -111,7 +111,7 @@ class MusicbdProvider : MainAPI() {
 
                     val poster = fetchPoster(href)
 
-                    newMovieSearchResponse(title, href, TvType.Movie) {
+                    newMovieSearchResponse(title, href, TvType.Others) {
                         this.posterUrl = poster
                     }
                 }
@@ -163,7 +163,7 @@ class MusicbdProvider : MainAPI() {
 
                     val poster = fetchPoster(href)
 
-                    newMovieSearchResponse(title, href, TvType.Movie) {
+                    newMovieSearchResponse(title, href, TvType.Others) {
                         this.posterUrl = poster
                     }
                 }
@@ -210,12 +210,12 @@ class MusicbdProvider : MainAPI() {
                 downloadUrl = "$mainUrl$downloadUrl"
             }
 
-            return newMovieLoadResponse(title, url, TvType.Movie, downloadUrl) {
+            return newMovieLoadResponse(title, url, TvType.Others, downloadUrl) {
                 this.posterUrl = poster
             }
         }
 
-        return newMovieLoadResponse(title, url, TvType.Movie, "") {
+        return newMovieLoadResponse(title, url, TvType.Others, "") {
             this.posterUrl = poster
         }
     }
