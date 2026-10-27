@@ -48,14 +48,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.cs3",
         "status": 1,
-        "version": 10,
+        "version": 11,
         "name": "HamsterProvider",
         "internalName": "HamsterProvider",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "xHamster - Free Porn Videos & XXX Movies",
-        "fileSize": 13417,
+        "fileSize": 18049,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -63,10 +63,10 @@
         ],
         "iconUrl": "https://static-ah.xhcdn.com/xh-desktop/images/favicon/favicon-v2-128x128.png",
         "apiVersion": 1,
-        "fileHash": "sha256-cb3ccd3bc6260a1f909e75062a91da1a2bb94971764d1b16825b9a98472d0143",
-        "jarFileSize": 41937,
+        "fileHash": "sha256-366bdb1711ef131131d816fa45b05cbcc4a7ac4e57cee69749521df504391cfa",
+        "jarFileSize": 63284,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.jar",
-        "jarHash": "sha256-10b3dd83f23d86c2afd9ea14f9a4a1bd2e1ae50bdd3e1e3b63ef7e6743f39b72"
+        "jarHash": "sha256-6a666df8eb001f1b600c87dc68041ff7154d041ad73619f697e0cce01a97533e"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
