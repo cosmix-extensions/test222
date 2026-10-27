@@ -225,10 +225,8 @@ class WowProvider : MainAPI() {
 
         val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
 
-        // The page has no og:image, so build the poster from the same img CDN the list thumbnails use.
-        val cdnPoster = videoId?.toLongOrNull()?.let { "https://img.$domain/${it / 1000 * 1000}/$it/medium@2x/1.jpg" }
-        // Same image the home list showed for this video (the page itself has no og:image).
-        poster = posterCache[key(url)] ?: cdnPoster ?: poster
+        // Use the same image the home list already showed for this video; otherwise the page's own poster.
+        poster = posterCache[key(url)] ?: poster
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
