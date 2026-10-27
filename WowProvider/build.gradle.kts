@@ -1,4 +1,4 @@
-version = 7
+version = 8
 
 cloudstream {
     language = "en"
@@ -6,6 +6,6 @@ cloudstream {
     description = "Only NSFW Movies Avalibale"
     status = 1
     tvTypes = listOf("Others")
-    isCrossPlatform = true
+    isCrossPlatform = false
     iconUrl = "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128"
 }

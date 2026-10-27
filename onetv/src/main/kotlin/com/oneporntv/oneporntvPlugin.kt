@@ -1,12 +1,16 @@
 package com.oneporntv
 
-import com.lagradost.cloudstream3.plugins.BasePlugin
+import android.content.Context
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
+import com.lagradost.cloudstream3.plugins.Plugin
 
 @CloudstreamPlugin
-class OnePornTvPlugin: BasePlugin() {
-    override fun load() {
-        // All providers should be added in this manner. Please don't edit the providers list directly.
-        registerMainAPI(OnePornTvProvider())
+class OnePornTvPlugin : Plugin() {
+    override fun load(context: Context) {
+        val provider = OnePornTvProvider()
+        registerMainAPI(provider)
+        openSettings = { ctx ->
+            SettingsDialog(ctx, provider.name, provider.mainUrl).show()
+        }
     }
 }

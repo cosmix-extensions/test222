@@ -5,6 +5,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import java.util.regex.Pattern
 import java.util.Base64
+import com.lagradost.nicehttp.NiceResponse
 
 class WowProvider : MainAPI() {
     override var mainUrl = "https://www.wowxxx.to"
@@ -16,7 +17,29 @@ class WowProvider : MainAPI() {
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Others)
 
-    private val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+    private val defaultUa = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+
+    /** UA + cookies saved by the WebView (the UA must match the one that solved Cloudflare). */
+    private val ua: Map<String, String>
+        get() {
+            val h = mutableMapOf("User-Agent" to CfStore.userAgent.ifBlank { defaultUa })
+            val c = CfStore.cookies
+            if (c.isNotBlank()) h["Cookie"] = c
+            return h
+        }
+
+    /**
+     * GET with the saved cookies. Only the home page may open the WebView (once per session, see CfBypass);
+     * everything else just reuses the cookies it saved.
+     */
+    private suspend fun cfGet(url: String, allowWebView: Boolean = false): NiceResponse {
+        val sentCookies = CfStore.cookies
+        val r = app.get(url, headers = ua, timeout = 60)
+        if (!CfBypass.isBlocked(r)) return r
+        val solved = if (allowWebView) CfBypass.solveOnce(mainUrl, sentCookies)
+            else CfStore.cookies.isNotBlank() && CfStore.cookies != sentCookies
+        return if (solved) app.get(url, headers = ua, timeout = 60) else r
+    }
 
     override val mainPage = mainPageOf(
         "$mainUrl/latest-updates/" to "Latest Updates",
@@ -81,7 +104,7 @@ class WowProvider : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page == 1) request.data else "${request.data}$page/"
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = cfGet(url, allowWebView = true).document
 
         val items = doc.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -110,7 +133,7 @@ class WowProvider : MainAPI() {
     override suspend fun search(query: String, page: Int): SearchResponseList? {
         val q = java.net.URLEncoder.encode(query, "UTF-8").replace("+", "-")
         val url = if (page == 1) "$mainUrl/search/$q/relevance/" else "$mainUrl/search/$q/relevance/$page/"
-        val document = app.get(url, headers = ua, timeout = 60).document
+        val document = cfGet(url).document
 
         val items = document.select("div.item").mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
@@ -138,7 +161,7 @@ class WowProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url, headers = ua, timeout = 60).document
+        val doc = cfGet(url).document
         val html = doc.html()
         val title = doc.title().trim().replace(" - $domain", "", true).trim()
 
@@ -199,7 +222,7 @@ class WowProvider : MainAPI() {
     ): Boolean {
         if (data.isBlank()) return false
         try {
-            val html = app.get(data, headers = ua, timeout = 60).text
+            val html = cfGet(data).text
             val matcher = Pattern.compile("src=['\"]([^'\"]*\\.mp4[^'\"]*)['\"]").matcher(html)
             var found = false
             while (matcher.find()) {
@@ -241,6 +264,8 @@ class WowProvider : MainAPI() {
                         ExtractorLinkType.VIDEO
                     ) {
                         quality = qualityValue
+                        referer = "$mainUrl/"
+                        headers = ua
                     }
                 )
                 found = true

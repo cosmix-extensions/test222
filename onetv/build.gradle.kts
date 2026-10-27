@@ -1,4 +1,4 @@
-version = 4
+version = 5
 
 cloudstream {
     language = "en"
@@ -6,6 +6,6 @@ cloudstream {
     description = "Only NSFW Movies Avalibale"
     status = 1
     tvTypes = listOf("Others")
-    isCrossPlatform = true
+    isCrossPlatform = false
     iconUrl = "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128"
 }
