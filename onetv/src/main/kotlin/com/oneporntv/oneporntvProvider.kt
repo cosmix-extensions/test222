@@ -225,8 +225,8 @@ class OnePornTvProvider : MainAPI() {
 
         val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
 
-        // Use the same image the home list already showed for this video; otherwise the page's own poster.
-        poster = posterCache[key(url)] ?: poster
+        // The page's own poster as before; the home list image only if the page has none.
+        if (poster.isNullOrBlank()) poster = posterCache[key(url)]
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
