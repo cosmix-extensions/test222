@@ -2,7 +2,7 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FreeVideos.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "FreeVideos",
         "internalName": "FreeVideos",
         "authors": [
@@ -13,11 +13,11 @@
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
-            "Movie"
+            "Others"
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.freepornvideos.xxx/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-a458062b318d194f1d51968c57fb50a5eea1a683cf3c4fa9d49bb7bbf8661f37",
+        "fileHash": "sha256-8c21009553ac74d1eb5720ec3aca89b5fb0fb363e7e3b633c95b27c6ed605d31",
         "jarFileSize": 59545,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FreeVideos.jar",
         "jarHash": "sha256-ff824dfd9f5f95e374f1d077a12714ed951896e3d7d9f23ab0f7304cbd00eb9d"
@@ -25,7 +25,7 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FullTo.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "FullTo",
         "internalName": "FullTo",
         "authors": [
@@ -36,11 +36,11 @@
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
-            "Movie"
+            "Others"
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.fullporn.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-54eb0615c8342cd2cbe9d335d0b57291dea2de34bc9b441411af9c84bce7c7e4",
+        "fileHash": "sha256-dbab3e43ef1adda1b1cf2175f035310a325e6be02bbc003cb24173121c77285e",
         "jarFileSize": 59186,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FullTo.jar",
         "jarHash": "sha256-32373b5f9ced3f63331f6b0abe9755e856e03bc086e0c5cfcd61bed65f1e538a"
@@ -48,22 +48,22 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.cs3",
         "status": 1,
-        "version": 9,
+        "version": 10,
         "name": "HamsterProvider",
         "internalName": "HamsterProvider",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "xHamster - Free Porn Videos & XXX Movies",
-        "fileSize": 13416,
+        "fileSize": 13417,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
-            "Movie"
+            "Others"
         ],
         "iconUrl": "https://static-ah.xhcdn.com/xh-desktop/images/favicon/favicon-v2-128x128.png",
         "apiVersion": 1,
-        "fileHash": "sha256-8460612b94bdcc64d0cb22edb4618b52650766bbe9a890774bd69b2fb66279f1",
+        "fileHash": "sha256-cb3ccd3bc6260a1f909e75062a91da1a2bb94971764d1b16825b9a98472d0143",
         "jarFileSize": 41937,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/HamsterProvider.jar",
         "jarHash": "sha256-10b3dd83f23d86c2afd9ea14f9a4a1bd2e1ae50bdd3e1e3b63ef7e6743f39b72"
@@ -71,7 +71,7 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "onetv",
         "internalName": "onetv",
         "authors": [
@@ -82,11 +82,11 @@
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
-            "Movie"
+            "Others"
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-2c1edbd85ffb7e9bad6ffc1256eb2f2e5bc762dcc68593ff79d8b8aa7c8810b3",
+        "fileHash": "sha256-87ff5fb3557459d726d644367d927bb065b28fdb95ab3fb53799bc166545d1cc",
         "jarFileSize": 59576,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.jar",
         "jarHash": "sha256-8ae0e7188d714ce0274ddf47bebe38258c1796d70929fb5c91c4d10fa3d48046"
@@ -94,31 +94,30 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "ViralLinksProvider",
         "internalName": "ViralLinksProvider",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "ViralLinksProvider",
-        "fileSize": 15483,
+        "fileSize": 15485,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
-            "TvSeries",
-            "Movie"
+            "Others"
         ],
         "iconUrl": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQvNXfZt7ctszD6Fy_FwU7NfcyxIEZ6uW6asTw_5cMPS38hkm65bQdzb2bCD-86XfOUVmp5xjOANaefT4ZdWSCf_picqYtsAN5McX_3gVEfdVa5EA4h9e2noiaNLwUhMK8VaGx1mQGI_7TCnpmEI3LxtgNPeVpKsojjSbqSZh50VbyrTiP7_2KOIusBBsC/s1024/1000073990.png",
         "apiVersion": 1,
-        "fileHash": "sha256-a846bd4175367aaa18067cc10892c7d1c9753c5bc2c31b713b52af06b82d367b",
-        "jarFileSize": 70148,
+        "fileHash": "sha256-b40050b99005816be86c01d4f6db58905e935984607da3e088be6ae7751922a4",
+        "jarFileSize": 70151,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.jar",
-        "jarHash": "sha256-e519812d9b704ff45d7dc9b6c3f39cba079a9305451c01b13b00f4e82b5aa501"
+        "jarHash": "sha256-56d7fa09943f267a6b99d83837921fb092f41bf661971a5ee3590356f2678596"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.cs3",
         "status": 1,
-        "version": 5,
+        "version": 6,
         "name": "WowProvider",
         "internalName": "WowProvider",
         "authors": [
@@ -129,11 +128,11 @@
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
-            "Movie"
+            "Others"
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-2ce6bccfacd71ceae787eb3fda8b3fed2df28194afb055ce80cb2e40406e0c85",
+        "fileHash": "sha256-30bb1549edf1394d89e5587730c9e929a0d678e1de9ca421dc3f5faf386f5829",
         "jarFileSize": 58212,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.jar",
         "jarHash": "sha256-97b354f3ea2cc5360158de8c3111193d7806d08e2b8216223a3b07955b5a2d12"
@@ -141,7 +140,7 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "WowUncutProvider",
         "internalName": "WowUncutProvider",
         "authors": [
@@ -152,13 +151,11 @@
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "hi",
         "tvTypes": [
-            "TvSeries",
-            "Movie",
             "Others"
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://wowuncut.com/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-804e4cb082fd6f89547297b67c9ba56e23f6a5f997e89a719fe7546f7a1e1567",
+        "fileHash": "sha256-977be8026e65286f075db0a9e7e5ed620349160b0b7bcb19c02eddeeb412f0a3",
         "jarFileSize": 46118,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.jar",
         "jarHash": "sha256-79c4ba42e0536ac65f7429054fce91f887c98f1f137e1024d057588e4f13e257"
