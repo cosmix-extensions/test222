@@ -71,14 +71,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "onetv",
         "internalName": "onetv",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Avalibale",
-        "fileSize": 17927,
+        "fileSize": 41872,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -86,10 +86,7 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.1porn.tv/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-7f504464b79d401f6e4b8412528ab34823cca6b42f49603916dfbb1379d21073",
-        "jarFileSize": 60166,
-        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/onetv.jar",
-        "jarHash": "sha256-7004a3896b205728a7d4478dad50e3d1a1a8773efe58995e2687acfac84113d7"
+        "fileHash": "sha256-a01d741760eb26b33a1f082b9dfafd32c7a13f93e4c87bc4c56068fd3955d1d5"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.cs3",
@@ -117,14 +114,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.cs3",
         "status": 1,
-        "version": 7,
+        "version": 8,
         "name": "WowProvider",
         "internalName": "WowProvider",
         "authors": [
             "Cloudstream Extension"
         ],
         "description": "Only NSFW Movies Avalibale",
-        "fileSize": 17866,
+        "fileSize": 41682,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -132,10 +129,7 @@
         ],
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.wowxxx.to/&size=128",
         "apiVersion": 1,
-        "fileHash": "sha256-d6c7f116bdddac73b5ebff1981bbe432ff8e2d9f8a0f7c7d20e640b9ab9ec714",
-        "jarFileSize": 58801,
-        "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowProvider.jar",
-        "jarHash": "sha256-50682c41551c59da4054b30ade0a9f99a9bc12f3bd7b3ba6208287d0a64a9fdc"
+        "fileHash": "sha256-f721dad173ed7aa8df5dd541c7b838a27482d38e19f93c8b1d568c9e05cb13c5"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/WowUncutProvider.cs3",
