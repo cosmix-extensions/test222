@@ -8,6 +8,9 @@ import java.util.Base64
 
 class FullPornProvider : MainAPI() {
     override var mainUrl = "https://www.fullporn.to"
+    // Domain without scheme/www, derived from mainUrl (change mainUrl only)
+    private val domain: String
+        get() = mainUrl.substringAfter("://").removePrefix("www.").trimEnd('/')
     override var name = "Full Porn"
     override var lang = "en"
     override val hasMainPage = true
@@ -144,9 +147,9 @@ class FullPornProvider : MainAPI() {
         val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
         
-        // Extract and format the title, removing 'fullporn.to' and everything after '😮'
+        // Extract and format the title, removing the site domain and everything after '😮'
         val title = doc.title().trim()
-            .replace(" - fullporn.to", "", true)
+            .replace(" - $domain", "", true)
             .substringBefore("😮")
             .trim()
 
@@ -185,9 +188,9 @@ class FullPornProvider : MainAPI() {
             ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
-            ?: Regex("""img\.fullporn\.to/\d+/(\d+)/""").find(html)?.groupValues?.get(1)
+            ?: Regex("img\\." + Regex.escape(domain) + "/\\d+/(\\d+)/").find(html)?.groupValues?.get(1)
 
-        val trailerUrl = videoId?.let { "https://cast.fullporn.to/preview/$it.mp4" }
+        val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster

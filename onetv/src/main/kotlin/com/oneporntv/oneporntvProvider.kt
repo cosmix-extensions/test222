@@ -8,6 +8,9 @@ import java.util.Base64
 
 class OnePornTvProvider : MainAPI() {
     override var mainUrl = "https://www.1porn.tv"
+    // Domain without scheme/www, derived from mainUrl (change mainUrl only)
+    private val domain: String
+        get() = mainUrl.substringAfter("://").removePrefix("www.").trimEnd('/')
     override var name = "1PornTv"
     override var lang = "en"
     override val hasMainPage = true
@@ -137,7 +140,7 @@ class OnePornTvProvider : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url, headers = ua, timeout = 60).document
         val html = doc.html()
-        val title = doc.title().trim().replace(" - 1porn.tv", "", true).trim() // Adjusted title cleaning
+        val title = doc.title().trim().replace(" - $domain", "", true).trim()
 
         var poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
         if (poster == null) {
@@ -169,9 +172,9 @@ class OnePornTvProvider : MainAPI() {
             ?: doc.selectFirst("span.video-favourites[data-object_id]")?.attr("data-object_id")
             ?: doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
-            ?: Regex("""img\.wowxxx\.to/\d+/(\d+)/""").find(html)?.groupValues?.get(1) // Might need adjustment if host differs
+            ?: Regex("img\\." + Regex.escape(domain) + "/\\d+/(\\d+)/").find(html)?.groupValues?.get(1)
 
-        val trailerUrl = videoId?.let { "https://cast.wowxxx.to/preview/$it.mp4" } // Might need adjustment if host differs
+        val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
 
         return newMovieLoadResponse(title, url, TvType.Others, url) {
             this.posterUrl = poster
