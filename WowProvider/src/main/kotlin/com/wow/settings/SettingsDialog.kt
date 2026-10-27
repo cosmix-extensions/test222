@@ -101,6 +101,11 @@ class SettingsDialog(context: Context, private val siteName: String, private val
             Toast.makeText(context, "Cookies cleared", Toast.LENGTH_SHORT).show()
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
 
+        // TEMPORARY: debug log viewer (remove with DebugLog.kt)
+        root.addView(button("Debug log", false) {
+            DebugLogDialog(context).show()
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
+
         root.addView(text("Close", 15f, accent, true).apply {
             gravity = Gravity.CENTER
             setPadding(dp(16), dp(14), dp(16), dp(4))
