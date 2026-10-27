@@ -198,7 +198,19 @@ class WowProvider : MainAPI() {
         val tags = doc.select("div.item:has(span:contains(Categories)) a.link").map { it.text() }
         val actors = doc.select("div.item:has(span:contains(Pornstars)) a.btn_model").map { it.text() }
 
-        val recommendations = doc.select("div.item:has(a[href*=/videos/])").mapNotNull { item ->
+        // "Show more related videos" endpoint: all related videos (site max 48) in one request.
+        // Falls back to the list on the page if it fails or is empty.
+        val relId = doc.selectFirst("#load-related[data-video-id]")?.attr("data-video-id")
+            ?: doc.selectFirst("a.rate-like[data-video-id]")?.attr("data-video-id")
+        val relatedItems = relId?.let { id ->
+            try {
+                val relUrl = "$mainUrl/get_related_videos.php?id=$id&count=48&offset=0"
+                cfGet(relUrl).document
+                    .select("div.item:has(a[href*=/videos/])").takeIf { it.isNotEmpty() }
+            } catch (_: Throwable) { null }
+        } ?: doc.select("div.item:has(a[href*=/videos/])")
+
+        val recommendations = relatedItems.mapNotNull { item ->
             val a = item.selectFirst("a[href*=/videos/]") ?: return@mapNotNull null
             val recHref = a.attr("href")
             val recTitle = a.attr("title").trim().ifEmpty {
