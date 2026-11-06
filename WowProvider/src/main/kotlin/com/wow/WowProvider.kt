@@ -42,7 +42,7 @@ class WowProvider : MainAPI() {
      * so posters (incl. the home preview card) always use the newest WebView cookies.
      */
     private inner class LiveImgHeaders : AbstractMap<String, String>() {
-        override val entries: Set>
+        override val entries
             get() = imgHeaders.entries
     }
     private val liveImgHeaders: Map<String, String> = LiveImgHeaders()
