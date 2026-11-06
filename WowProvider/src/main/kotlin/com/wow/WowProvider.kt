@@ -38,11 +38,9 @@ class WowProvider : MainAPI() {
      * Poster headers that are read when the image is actually requested, not when load() ran,
      * so posters (incl. the home preview card) always use the newest WebView cookies.
      */
-    private inner class LiveImgHeaders : AbstractMap<String, String>() {
-        override val entries: Set>
-            get() = imgHeaders.entries
+    private val liveImgHeaders: Map<String, String> = object : AbstractMap<String, String>() {
+        override val entries get() = imgHeaders.entries
     }
-    private val liveImgHeaders: Map<String, String> = LiveImgHeaders()
 
     /** Poster URL from the home/search lists, keyed by video page, so load() (and the home preview) uses the same image. */
     private val posterCache = java.util.concurrent.ConcurrentHashMap<String, String>()
@@ -235,7 +233,7 @@ class WowProvider : MainAPI() {
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
             ?: Regex("img\\." + Regex.escape(domain) + "/\\d+/(\\d+)/").find(html)?.groupValues?.get(1)
 
-        val trailerUrl = videoId?.let { "https://cast.freepornvideos.xxx/preview/$it.mp4" }
+        val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
 
         // The page's own poster as before; the home list image only if the page has none.
         if (poster.isNullOrBlank()) poster = posterCache[key(url)]
