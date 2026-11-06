@@ -14,6 +14,9 @@ class WowProvider : MainAPI() {
     // Domain without scheme/www, derived from mainUrl (change mainUrl only)
     private val domain: String
         get() = mainUrl.substringAfter("://").removePrefix("www.").trimEnd('/')
+    private val trailerUrlBase = "https://www.freepornvideos.xxx"
+    private val trailerDomain: String
+        get() = trailerUrlBase.substringAfter("://").removePrefix("www.").trimEnd('/')
     override var name = "Wow"
     override var lang = "en"
     override val hasMainPage = true
@@ -38,9 +41,11 @@ class WowProvider : MainAPI() {
      * Poster headers that are read when the image is actually requested, not when load() ran,
      * so posters (incl. the home preview card) always use the newest WebView cookies.
      */
-    private val liveImgHeaders: Map<String, String> = object : AbstractMap<String, String>() {
-        override val entries get() = imgHeaders.entries
+    private inner class LiveImgHeaders : AbstractMap<String, String>() {
+        override val entries: Set>
+            get() = imgHeaders.entries
     }
+    private val liveImgHeaders: Map<String, String> = LiveImgHeaders()
 
     /** Poster URL from the home/search lists, keyed by video page, so load() (and the home preview) uses the same image. */
     private val posterCache = java.util.concurrent.ConcurrentHashMap<String, String>()
@@ -233,7 +238,7 @@ class WowProvider : MainAPI() {
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
             ?: Regex("img\\." + Regex.escape(domain) + "/\\d+/(\\d+)/").find(html)?.groupValues?.get(1)
 
-        val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
+        val trailerUrl = videoId?.let { "https://cast.$trailerDomain/preview/$it.mp4" }
 
         // The page's own poster as before; the home list image only if the page has none.
         if (poster.isNullOrBlank()) poster = posterCache[key(url)]
@@ -261,7 +266,7 @@ class WowProvider : MainAPI() {
             this.recommendations = recommendations
             addTrailer(
                 trailerUrl,
-                referer = mainUrl,
+                referer = trailerUrlBase,
                 addRaw = true,
                 headers = ua
             )
