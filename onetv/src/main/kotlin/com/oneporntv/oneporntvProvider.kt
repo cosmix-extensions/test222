@@ -14,6 +14,9 @@ class OnePornTvProvider : MainAPI() {
     // Domain without scheme/www, derived from mainUrl (change mainUrl only)
     private val domain: String
         get() = mainUrl.substringAfter("://").removePrefix("www.").trimEnd('/')
+    private val trailerUrlBase = "https://www.freepornvideos.xxx"
+    private val trailerDomain: String
+        get() = trailerUrlBase.substringAfter("://").removePrefix("www.").trimEnd('/')
     override var name = "1PornTv"
     override var lang = "en"
     override val hasMainPage = true
@@ -39,7 +42,7 @@ class OnePornTvProvider : MainAPI() {
      * so posters (incl. the home preview card) always use the newest WebView cookies.
      */
     private inner class LiveImgHeaders : AbstractMap<String, String>() {
-        override val entries: Set<Map.Entry<String, String>>
+        override val entries
             get() = imgHeaders.entries
     }
     private val liveImgHeaders: Map<String, String> = LiveImgHeaders()
@@ -235,7 +238,7 @@ class OnePornTvProvider : MainAPI() {
             ?: Regex("""/(\d{6,})_\d+m\.mp4""").find(html)?.groupValues?.get(1)
             ?: Regex("img\\." + Regex.escape(domain) + "/\\d+/(\\d+)/").find(html)?.groupValues?.get(1)
 
-        val trailerUrl = videoId?.let { "https://cast.$domain/preview/$it.mp4" }
+        val trailerUrl = videoId?.let { "https://cast.$trailerDomain/preview/$it.mp4" }
 
         // The page's own poster as before; the home list image only if the page has none.
         if (poster.isNullOrBlank()) poster = posterCache[key(url)]
@@ -264,7 +267,7 @@ class OnePornTvProvider : MainAPI() {
             if(trailerUrl != null) {
                 addTrailer(
                     trailerUrl,
-                    referer = mainUrl,
+                    referer = trailerUrlBase,
                     addRaw = true,
                     headers = ua
                 )
