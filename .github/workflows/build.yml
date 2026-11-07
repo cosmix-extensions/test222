@@ -46,6 +46,7 @@ jobs:
           
           echo '{
             "name": "NSFW Providers",
+            "iconUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/refs/heads/main/assets/icons/Fliex.png",
             "description": "NSFW Extensions for CloudStream",
             "manifestVersion": 1,
             "pluginLists": [
@@ -60,3 +61,4 @@ jobs:
           folder: build_output
           clean: false
           token: ${{ secrets.GITHUB_TOKEN }}
+          
