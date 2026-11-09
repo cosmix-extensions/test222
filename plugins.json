@@ -91,14 +91,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/VideosFree.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "VideosFree",
         "internalName": "VideosFree",
         "authors": [
             "cosmix"
         ],
         "description": "VideosFree - Watch free HD videos from xxvideoss.org with categories, search and multiple streaming sources.",
-        "fileSize": 20016,
+        "fileSize": 20403,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -106,10 +106,10 @@
         ],
         "iconUrl": "https://xxvideoss.org/wp-content/uploads/2025/06/favicon-xxvideoss.org_.png",
         "apiVersion": 1,
-        "fileHash": "sha256-82d70eb9d6c1fb1640e4a77fb1a14f38c0674f5d522d1674a92f21d67201281e",
-        "jarFileSize": 75901,
+        "fileHash": "sha256-efe5920f5092703939cb872d527bd25ed319bf1f35681fd2ddde7007f1a88be6",
+        "jarFileSize": 77298,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/VideosFree.jar",
-        "jarHash": "sha256-f4b5009791d3b46cb6bd593c3c51c5196ae273cb3a8eaba0ccfada4cbc5aa506"
+        "jarHash": "sha256-6fc587204a0cec2e34d7926544fc1e57a2cbf46ffb285da31ef18f1bf95def89"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/VippornsProvider.cs3",
