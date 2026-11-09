@@ -9,7 +9,7 @@ import java.net.URLEncoder
 
 class FreeWatchProvider : MainAPI() {
     override var mainUrl = "https://xxxfree.watch"
-    override var name = "FreeWatch"
+    override var name = "XxxFree"
     override val hasMainPage = true
     override var lang = "en"
     override val hasDownloadSupport = true
@@ -166,7 +166,7 @@ class FreeWatchProvider : MainAPI() {
 
     override suspend fun search(query: String, page: Int): SearchResponseList {
         val url =
-            "\( mainUrl/wp-json/wp/v2/posts?search= \){encode(query)}&page=$page&per_page=$perPage&_embed=1"
+            "$mainUrl/wp-json/wp/v2/posts?search=${encode(query)}&page=$page&per_page=$perPage&_embed=1"
         val (items, hasNext) = fetchPosts(url)
         return newSearchResponseList(items, hasNext)
     }
@@ -237,7 +237,7 @@ class FreeWatchProvider : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         ensureAntibot()
         val slug = url.trimEnd('/').substringAfterLast('/').substringBefore('?')
-        val apiUrl = "\( mainUrl/wp-json/wp/v2/posts?slug= \){encode(slug)}&_embed=1"
+        val apiUrl = "$mainUrl/wp-json/wp/v2/posts?slug=${encode(slug)}&_embed=1"
         val apiRes = app.get(apiUrl, headers = apiHeaders())
         val post = try {
             parseJson<ArrayList<WpPost>>(apiRes.text).firstOrNull()
