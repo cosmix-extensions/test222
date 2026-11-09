@@ -33,6 +33,7 @@ jobs:
           ./gradlew FreeVideos:make
           ./gradlew FullTo:make
           ./gradlew VippornsProvider:make
+          ./gradlew VideosFree:make
           ./gradlew makePluginsJson
           
           mkdir -p build_output
@@ -44,6 +45,7 @@ jobs:
           cp FreeVideos/build/*.cs3 build_output/ || true
           cp FullTo/build/*.cs3 build_output/ || true
           cp VippornsProvider/build/*.cs3 build_output/ || true
+          cp VideosFree/build/*.cs3 build_output/ || true
           cp build/plugins.json build_output/plugins.json
           
           echo '{
