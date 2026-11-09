@@ -16,6 +16,7 @@ class FreeWatchProvider : MainAPI() {
     override val supportedTypes = setOf(TvType.Others)
 
     private val perPage = 20
+    private val requestTimeout = 60L
     private val userAgent =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
@@ -73,7 +74,7 @@ class FreeWatchProvider : MainAPI() {
         val now = System.currentTimeMillis()
         if (!antibotToken.isNullOrBlank() && now - antibotAt < antibotTtlMs) return
 
-        val challenge = app.get(mainUrl, headers = defaultHeaders).text
+        val challenge = app.get(mainUrl, headers = defaultHeaders, timeout = requestTimeout).text
         val token = extractAntibotToken(challenge)
             ?: throw ErrorLoadingException("Antibot token not found")
 
@@ -88,6 +89,7 @@ class FreeWatchProvider : MainAPI() {
                 "antibot" to token,
                 "submit" to "Click to continue",
             ),
+            timeout = requestTimeout,
         )
 
         antibotToken = token
@@ -140,7 +142,7 @@ class FreeWatchProvider : MainAPI() {
 
     private suspend fun fetchPosts(url: String): Pair<List<SearchResponse>, Boolean> {
         ensureAntibot()
-        val res = app.get(url, headers = apiHeaders())
+        val res = app.get(url, headers = apiHeaders(), timeout = requestTimeout)
         val totalPages = res.headers["X-WP-TotalPages"]?.toIntOrNull()
         val list = try {
             parseJson<ArrayList<WpPost>>(res.text)
@@ -238,14 +240,14 @@ class FreeWatchProvider : MainAPI() {
         ensureAntibot()
         val slug = url.trimEnd('/').substringAfterLast('/').substringBefore('?')
         val apiUrl = "$mainUrl/wp-json/wp/v2/posts?slug=${encode(slug)}&_embed=1"
-        val apiRes = app.get(apiUrl, headers = apiHeaders())
+        val apiRes = app.get(apiUrl, headers = apiHeaders(), timeout = requestTimeout)
         val post = try {
             parseJson<ArrayList<WpPost>>(apiRes.text).firstOrNull()
         } catch (_: Exception) {
             null
         }
 
-        val pageHtml = app.get(url, headers = htmlHeaders()).text
+        val pageHtml = app.get(url, headers = htmlHeaders(), timeout = requestTimeout).text
         val title = decodeHtml(post?.title?.rendered.orEmpty())
             .ifBlank {
                 Regex("""property=["']og:title["']\s+content=["']([^"']+)["']""")
@@ -288,7 +290,7 @@ class FreeWatchProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit,
     ): Boolean {
         ensureAntibot()
-        val html = app.get(data, headers = htmlHeaders()).text
+        val html = app.get(data, headers = htmlHeaders(), timeout = requestTimeout).text
         val embeds = parseEmbeds(html)
         if (embeds.isEmpty()) return false
 
