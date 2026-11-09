@@ -91,14 +91,14 @@
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/VippornsProvider.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "VippornsProvider",
         "internalName": "VippornsProvider",
         "authors": [
             "cosmix-extensions"
         ],
         "description": "Vipporns: Free HD adult videos with categories, search and recommendations.",
-        "fileSize": 16627,
+        "fileSize": 16642,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -106,10 +106,10 @@
         ],
         "iconUrl": "https://www.vipporns.com/images/logo.png",
         "apiVersion": 1,
-        "fileHash": "sha256-f41290356352546e54ec398940e73d532ad94979731bc17b2e5647306e470bb4",
-        "jarFileSize": 53303,
+        "fileHash": "sha256-2816b4c006c470a362cc257ec98a8fdff40b6b9e68bff43e8feef899fea4fa6b",
+        "jarFileSize": 53416,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/VippornsProvider.jar",
-        "jarHash": "sha256-3b7e257a883139477dc20290b71764b7e40ba8331192c73325694baf87ef33ef"
+        "jarHash": "sha256-2abbc5df2f2a15cba299685769ec54642e060286e9e2c45f7f639b8621cd1f0f"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/ViralLinksProvider.cs3",
