@@ -32,7 +32,7 @@
             "senkuboy0-cyber"
         ],
         "description": "FreeWatch: Adult videos from xxxfree.watch",
-        "fileSize": 30510,
+        "fileSize": 30575,
         "repositoryUrl": "https://github.com/cosmix-extensions/test222",
         "language": "en",
         "tvTypes": [
@@ -40,10 +40,10 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/refs/heads/main/FreeWatch/FreeWatch.png",
         "apiVersion": 1,
-        "fileHash": "sha256-bb1d87467e2c77cda995c322cb0b490fdc5b990256dfad24410c6d611869c7fc",
-        "jarFileSize": 135060,
+        "fileHash": "sha256-1f3fc01b72b3ac53adb574cd608fc7f8349c0d8875f7547484d6082fd1f879a1",
+        "jarFileSize": 135162,
         "jarUrl": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FreeWatch.jar",
-        "jarHash": "sha256-61a5c148405e8c3aa478010c2b9a4b21696af28e3bb8f45b50b415b23cad06e0"
+        "jarHash": "sha256-50ad8583cb64c0942d348126eda5681046c995f0f5577f06837b9dbd980fd078"
     },
     {
         "url": "https://raw.githubusercontent.com/cosmix-extensions/test222/builds/FullTo.cs3",
