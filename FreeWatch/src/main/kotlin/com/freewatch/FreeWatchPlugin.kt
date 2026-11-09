@@ -7,9 +7,9 @@ import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 class FreeWatchPlugin : BasePlugin() {
     override fun load() {
         registerMainAPI(FreeWatchProvider())
-
         registerExtractorAPI(Vixeo())
         registerExtractorAPI(Luvstream())
         registerExtractorAPI(Firestream())
+        registerExtractorAPI(Frstream())
     }
 }
