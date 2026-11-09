@@ -134,7 +134,7 @@ open class Firestream : ExtractorApi() {
         val origin = Regex("""^(https?://[^/]+)""").find(finalUrl)?.groupValues?.getOrNull(1)
             ?: mainUrl
 
-        val resolveUrl = "\( origin/api/videos/ \){slug}/resolve"
+        val resolveUrl = "$origin/api/videos/$slug/resolve"
         val body = app.post(
             resolveUrl,
             headers = mapOf(
