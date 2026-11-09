@@ -1,2 +1,2 @@
-rootProject.name = "NSFW Providers"
-include(":ViralLinksProvider", ":WowProvider", ":WowUncutProvider", ":HamsterProvider", ":onetv", ":FreeVideos", ":FullTo", ":VippornsProvider", ":VideosFree")
+RootProject.name = "NSFW Providers"
+include(":ViralLinksProvider", ":WowProvider", ":WowUncutProvider", ":HamsterProvider", ":onetv", ":FreeVideos", ":FullTo", ":VippornsProvider", ":VideosFree", ":FreeWatch")
