@@ -25,29 +25,15 @@ jobs:
 
       - name: Build and Generate
         run: |
-          # Retries to survive transient GitHub failures such as 504 while
-          # the CloudStream gradle plugin downloads classes.jar.
-          gradle_retry() {
-            for attempt in 1 2 3; do
-              if "$@"; then
-                return 0
-              fi
-              echo "::warning::Attempt $attempt failed for: $* - retrying in 30s"
-              sleep 30
-            done
-            echo "::error::All 3 attempts failed for: $*"
-            return 1
-          }
-
-          gradle_retry ./gradlew HamsterProvider:make
-          gradle_retry ./gradlew ViralLinksProvider:make
-          gradle_retry ./gradlew WowProvider:make
-          gradle_retry ./gradlew WowUncutProvider:make
-          gradle_retry ./gradlew onetv:make
-          gradle_retry ./gradlew FreeVideos:make
-          gradle_retry ./gradlew FullTo:make
-          gradle_retry ./gradlew VippornsProvider:make
-          gradle_retry ./gradlew makePluginsJson
+          ./gradlew HamsterProvider:make
+          ./gradlew ViralLinksProvider:make
+          ./gradlew WowProvider:make
+          ./gradlew WowUncutProvider:make
+          ./gradlew onetv:make
+          ./gradlew FreeVideos:make
+          ./gradlew FullTo:make
+          ./gradlew VippornsProvider:make
+          ./gradlew makePluginsJson
           
           mkdir -p build_output
           cp HamsterProvider/build/*.cs3 build_output/ || true

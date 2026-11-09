@@ -115,7 +115,12 @@ class VippornsProvider : MainAPI() {
         val doc = app.get(url, headers = pageHeaders(), timeout = 30).document
         val items = parseCards(doc)
         val hasNext = items.size >= PAGE_SIZE
-        return newHomePageResponse(request.name, items, hasNext)
+        // isHorizontalImages = true -> landscape 16:9 cards on the main page,
+        // matching the site's screenshot thumbnails (same as HamsterProvider).
+        return newHomePageResponse(
+            HomePageList(request.name, items, isHorizontalImages = true),
+            hasNext
+        )
     }
 
     // --------------------------------------------------------------- search
